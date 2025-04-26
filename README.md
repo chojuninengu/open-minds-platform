@@ -52,9 +52,8 @@ cd open-minds-platform
 cd backend
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt  # (Add requirements.txt as you build)
-# To run (example):
-# uvicorn main:app --reload
+pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
 ### 3. Frontend Setup (React Example)
