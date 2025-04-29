@@ -42,7 +42,7 @@ We believe education should empower everyone, everywhere.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/open-minds-platform.git
+git clone https://github.com/chojuninengu/open-minds-platform.git
 cd open-minds-platform
 ```
 
