@@ -97,7 +97,7 @@ Together, we can make education a universal right. 🌎🚀
 
 ## Live Demo
 
-Visit our website: [Open Minds Platform](https://your-username.github.io/open-minds-platform)
+Visit our website: [Open Minds Platform](https://chojuninengu.github.io/open-minds-platform)
 
 ## Features
 
@@ -123,7 +123,7 @@ To run this project locally:
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/open-minds-platform.git
+git clone https://github.com/chojuninengu/open-minds-platform.git
 cd open-minds-platform
 ```
 
