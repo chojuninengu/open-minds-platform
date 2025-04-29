@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRightIcon, BookOpenIcon, UserGroupIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { BookOpenIcon, UserGroupIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 const features = [
   {
