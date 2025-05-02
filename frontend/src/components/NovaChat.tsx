@@ -14,7 +14,7 @@ interface NovaChatProps {
 }
 
 const subjects = [
-  { id: 'math', name: 'Mathematics' },
+  { id: 'math', name: 'Math' },
   { id: 'history', name: 'History' },
   { id: 'biology', name: 'Biology' },
   { id: 'physics', name: 'Physics' },
@@ -68,7 +68,7 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
       console.error('Error getting Nova response:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: 'Error. Try again.',
       }]);
     } finally {
       setIsLoading(false);
@@ -102,7 +102,6 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
   };
 
   const handleSave = (message: Message) => {
-    // Placeholder for save functionality
     console.log('Saving message:', message);
   };
 
@@ -110,11 +109,11 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
     <Card className={`w-full max-w-4xl mx-auto p-4 ${className}`}>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Nova AI Assistant</h2>
+          <h2 className="text-xl font-bold">Nova</h2>
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-3 py-1 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+            className="px-2 py-1 text-sm border rounded-lg dark:bg-gray-700 dark:border-gray-600"
           >
             {subjects.map(subject => (
               <option key={subject.id} value={subject.id}>
@@ -124,7 +123,7 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
           </select>
         </div>
 
-        <div className="h-[500px] overflow-y-auto space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="h-[400px] overflow-y-auto space-y-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -133,22 +132,22 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
               }`}
             >
               <div
-                className={`max-w-[80%] p-3 rounded-lg ${
+                className={`max-w-[80%] p-2 rounded-lg ${
                   message.role === 'user'
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-200 dark:bg-gray-700'
                 }`}
               >
-                <div className="mb-2">{message.content}</div>
+                <div className="text-sm">{message.content}</div>
                 {message.role === 'assistant' && (
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex gap-1 mt-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleTranslate(message)}
                       className="p-1"
                     >
-                      <LanguageIcon className="h-4 w-4" />
+                      <LanguageIcon className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -156,7 +155,7 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
                       onClick={() => handleCopy(message.content)}
                       className="p-1"
                     >
-                      <ClipboardIcon className="h-4 w-4" />
+                      <ClipboardIcon className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -164,7 +163,7 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
                       onClick={() => handleSave(message)}
                       className="p-1"
                     >
-                      <BookmarkIcon className="h-4 w-4" />
+                      <BookmarkIcon className="h-3 w-3" />
                     </Button>
                   </div>
                 )}
@@ -173,8 +172,8 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-gray-200 dark:bg-gray-700 p-3 rounded-lg">
-                Nova is thinking...
+              <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-lg text-sm">
+                Thinking...
               </div>
             </div>
           )}
@@ -186,11 +185,11 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Nova anything..."
-            className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+            placeholder="Ask Nova..."
+            className="flex-1 p-2 text-sm border rounded-lg dark:bg-gray-700 dark:border-gray-600"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} size="sm">
             Send
           </Button>
         </form>
