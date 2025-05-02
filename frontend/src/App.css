@@ -1,43 +1,41 @@
 #root {
   width: 100%;
   min-height: 100vh;
+  background-color: #f8f9fa;
 }
 
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+:root {
+  --primary-color: #0066FF;
+  --secondary-color: #00308F;
+  --accent-color: #FF6B00;
+  --background-light: #f8f9fa;
+  --text-primary: #333;
+  --text-secondary: #666;
 }
 
-.animated-gradient {
-  background: linear-gradient(-45deg, #2c3e50, #3498db, #2980b9, #9b59b6);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
-  min-height: 100vh;
+.primary-gradient {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.accent-gradient {
+  background: linear-gradient(135deg, var(--accent-color), #FF8533);
+}
+
+.plp-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.glass-card:hover {
+.plp-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-.glass-nav {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+.plp-nav {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Custom scrollbar */
