@@ -14,8 +14,8 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 glass-nav">
-      <nav className="flex items-center justify-between p-3 lg:px-4" aria-label="Global">
+    <header className="fixed inset-x-0 top-0 z-50 plp-nav">
+      <nav className="container mx-auto flex items-center justify-between py-4 px-6" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link to="/" className="-m-1.5 p-1.5">
             <span className="text-base font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
@@ -26,7 +26,7 @@ export default function Navbar() {
         <div className="flex lg:hidden">
           <button
             type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white/80 hover:text-white transition-colors"
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 hover:text-primary-color transition-colors"
             onClick={() => setMobileMenuOpen(true)}
           >
             <span className="sr-only">Open main menu</span>
@@ -38,7 +38,7 @@ export default function Navbar() {
             <Link
               key={item.name}
               to={item.href}
-              className="text-xs font-semibold leading-6 text-white/80 hover:text-white transition-colors"
+              className="text-sm font-medium text-gray-700 hover:text-primary-color transition-colors"
             >
               {item.name}
             </Link>
@@ -59,7 +59,7 @@ export default function Navbar() {
         <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white dark:bg-gray-900 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 glass-nav">
           <div className="flex items-center justify-between">
             <Link to="/" className="-m-1.5 p-1.5">
-              <span className="text-base font-bold text-white hover:text-white/90 transition-colors">
+              <span className="text-xl font-bold text-primary-color hover:text-secondary-color transition-colors">
                 Open Minds
               </span>
             </Link>
