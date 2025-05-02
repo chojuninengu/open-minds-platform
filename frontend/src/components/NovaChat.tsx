@@ -14,7 +14,7 @@ interface NovaChatProps {
 }
 
 const subjects = [
-  { id: 'math', name: 'Math' },
+  { id: 'math', name: 'Mathematics' },
   { id: 'history', name: 'History' },
   { id: 'biology', name: 'Biology' },
   { id: 'physics', name: 'Physics' },
@@ -68,7 +68,7 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
       console.error('Error getting Nova response:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Error. Try again.',
+        content: 'Sorry, I encountered an error. Please try again.',
       }]);
     } finally {
       setIsLoading(false);
@@ -106,94 +106,106 @@ export const NovaChat = ({ className = '' }: NovaChatProps) => {
   };
 
   return (
-    <Card className={`w-full max-w-4xl mx-auto p-4 ${className}`}>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Nova</h2>
-          <select
-            value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-2 py-1 text-sm border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-          >
-            {subjects.map(subject => (
-              <option key={subject.id} value={subject.id}>
-                {subject.name}
-              </option>
-            ))}
-          </select>
+    <div className={`bg-gray-50 py-16 sm:py-24 ${className}`}>
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Chat with Nova
+          </h2>
+          <p className="mt-2 text-lg leading-8 text-gray-600">
+            Your AI learning companion is here to help
+          </p>
         </div>
-
-        <div className="h-[400px] overflow-y-auto space-y-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-[80%] p-2 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700'
-                }`}
+        <Card className="mt-12">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Nova AI Assistant</h3>
+              <select
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+                className="rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6"
               >
-                <div className="text-sm">{message.content}</div>
-                {message.role === 'assistant' && (
-                  <div className="flex gap-1 mt-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleTranslate(message)}
-                      className="p-1"
-                    >
-                      <LanguageIcon className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCopy(message.content)}
-                      className="p-1"
-                    >
-                      <ClipboardIcon className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleSave(message)}
-                      className="p-1"
-                    >
-                      <BookmarkIcon className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
+                {subjects.map(subject => (
+                  <option key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-lg text-sm">
-                Thinking...
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Nova..."
-            className="flex-1 p-2 text-sm border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-            disabled={isLoading}
-          />
-          <Button type="submit" disabled={isLoading} size="sm">
-            Send
-          </Button>
-        </form>
+            <div className="h-[500px] overflow-y-auto space-y-4 p-4 bg-gray-50 rounded-lg">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[80%] p-4 rounded-lg ${
+                      message.role === 'user'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-white shadow-sm ring-1 ring-gray-200'
+                    }`}
+                  >
+                    <div className="text-sm">{message.content}</div>
+                    {message.role === 'assistant' && (
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleTranslate(message)}
+                          className="p-1"
+                        >
+                          <LanguageIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCopy(message.content)}
+                          className="p-1"
+                        >
+                          <ClipboardIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSave(message)}
+                          className="p-1"
+                        >
+                          <BookmarkIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white p-4 rounded-lg shadow-sm ring-1 ring-gray-200">
+                    <div className="text-sm text-gray-600">Nova is thinking...</div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex gap-2 pt-4 border-t">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask Nova anything..."
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                disabled={isLoading}
+              />
+              <Button type="submit" disabled={isLoading}>
+                Send
+              </Button>
+            </form>
+          </div>
+        </Card>
       </div>
-    </Card>
+    </div>
   );
 }; 
