@@ -7,23 +7,23 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen animated-gradient">
       <Navbar />
-      <main className="pt-16">{children}</main>
-      <footer className="mt-auto py-8 bg-white dark:bg-gray-800">
+      <main className="pt-16 px-4">{children}</main>
+      <footer className="mt-auto py-6 glass-nav">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-sm text-white/80">
               © {new Date().getFullYear()} Open Minds Platform. All rights reserved.
             </div>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+              <a href="#" className="text-white/60 hover:text-white/90 transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+              <a href="#" className="text-white/60 hover:text-white/90 transition-colors">
                 Terms of Service
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+              <a href="#" className="text-white/60 hover:text-white/90 transition-colors">
                 Contact
               </a>
             </div>
