@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { BookOpenIcon, UserGroupIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Hero } from '../components/Hero';
 import { Features } from '../components/Features';
-import { ChatInterface } from '../components/ChatInterface';
+import { NovaChat } from '../components/NovaChat';
 
 const features = [
   {
@@ -28,7 +28,7 @@ export const Home = () => {
       <Hero />
       <Features />
       <div className="container mx-auto px-4">
-        <ChatInterface />
+        <NovaChat />
       </div>
     </div>
   );
