@@ -16,16 +16,16 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
   lastAccessed,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+    <div className="glass-card rounded-lg p-4">
 
-      <h3 className="text-base font-semibold text-gray-800 mb-2">{title}</h3>
-      <div className="w-full bg-gray-200 rounded-full h-1.5 mb-3">
+      <h3 className="text-base font-semibold text-white mb-2">{title}</h3>
+      <div className="w-full bg-white/10 rounded-full h-1.5 mb-3">
         <div
           className="bg-blue-600 h-1.5 rounded-full"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
-      <div className="flex justify-between text-xs text-gray-600">
+      <div className="flex justify-between text-xs text-white/70">
         <span>{completedLessons}/{totalLessons} lessons</span>
         <span>Last accessed: {lastAccessed}</span>
       </div>
