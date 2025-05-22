@@ -5,6 +5,47 @@ import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import { ScrollArea } from '../ui/scroll-area';
 
+const generateResponse = (message: string): string => {
+  const greetings = ['hello', 'hi', 'hey', 'greetings'];
+  const howAreYou = ['how are you', 'how are you doing', 'how do you do'];
+  const messageLower = message.toLowerCase();
+
+  if (greetings.some(g => messageLower.includes(g))) {
+    return "Hello! I'm Nova, your AI assistant. How can I help you today? 😊";
+  }
+
+  if (howAreYou.some(h => messageLower.includes(h))) {
+    return "I'm functioning well, thank you for asking! I'm here to help you with any questions or tasks you might have. What would you like to work on?";
+  }
+
+  if (messageLower.includes('code') || messageLower.includes('programming')) {
+    return `I'd be happy to help with coding! Here's a simple example of what I can do:
+
+\`\`\`python
+def greet(name: str) -> str:
+    """
+    Returns a personalized greeting message.
+    """
+    return f"Hello, {name}! Welcome to coding with Nova."
+
+# Example usage
+message = greet("User")
+print(message)
+\`\`\`
+
+What specific programming topic would you like to explore?`;
+  }
+
+  return `I understand you're saying "${message}". I'm here to help with:
+
+- Programming and coding questions
+- Learning and tutoring
+- General knowledge queries
+- Problem-solving
+
+What specific area would you like to focus on?`;
+};
+
 export default function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = localStorage.getItem('chat_history');
@@ -42,13 +83,13 @@ export default function ChatContainer() {
     setIsLoading(true);
 
     try {
-      // Simulate API call for now
+      // Simulate API call with more natural responses
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const aiResponse: Message = {
         id: generateMessageId(),
         type: 'assistant',
-        content: `I received your message: "${content}"\n\nHere's a code example:\n\`\`\`python\ndef hello_world():\n    print("Hello, World!")\n\`\`\``,
+        content: generateResponse(content),
         timestamp: Date.now(),
         status: 'sent',
       };
@@ -59,7 +100,7 @@ export default function ChatContainer() {
       const errorMessage: Message = {
         id: generateMessageId(),
         type: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: 'I apologize, but I encountered an error. Please try again.',
         timestamp: Date.now(),
         status: 'error',
       };
@@ -73,6 +114,12 @@ export default function ChatContainer() {
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900">
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4 max-w-3xl mx-auto">
+          {messages.length === 0 && (
+            <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
+              <p className="text-lg font-medium">Welcome to Nova AI Assistant! 👋</p>
+              <p className="mt-2">Ask me anything about programming, learning, or general topics.</p>
+            </div>
+          )}
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
