@@ -1,1 +1,1 @@
- 
+"""Nova AI data models.""" 
