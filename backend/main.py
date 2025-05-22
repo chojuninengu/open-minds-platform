@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 from dotenv import load_dotenv
-import openai
 import httpx
+from anthropic import Anthropic
 
 # Load environment variables
 load_dotenv()
@@ -22,8 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize OpenAI client
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize Anthropic client
+anthropic = Anthropic(api_key=os.getenv("CLAUDE_API_KEY"))
 
 # Pydantic models
 class AskRequest(BaseModel):
@@ -57,16 +57,17 @@ Translate in French if required."""
 @app.post("/api/nova/ask", response_model=AskResponse)
 async def ask_nova(request: AskRequest):
     try:
-        response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": NOVA_SYSTEM_PROMPT},
-                {"role": "user", "content": f"Context: {request.context}\nQuestion: {request.prompt}"}
-            ],
-            temperature=0.7,
+        message = f"{NOVA_SYSTEM_PROMPT}\n\nContext: {request.context}\nQuestion: {request.prompt}"
+        response = anthropic.messages.create(
+            model="claude-3-sonnet-20240229",
+            max_tokens=1000,
+            messages=[{
+                "role": "user",
+                "content": message
+            }]
         )
         
-        answer = response.choices[0].message.content
+        answer = response.content[0].text
         return AskResponse(answer=answer, language=request.language)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -97,16 +98,17 @@ async def translate_text(request: TranslateRequest):
 @app.post("/api/nova/summary", response_model=SummaryResponse)
 async def summarize_text(request: SummaryRequest):
     try:
-        response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Summarize the following text concisely:"},
-                {"role": "user", "content": request.text}
-            ],
-            temperature=0.3,
+        message = f"Summarize the following text concisely:\n\n{request.text}"
+        response = anthropic.messages.create(
+            model="claude-3-sonnet-20240229",
+            max_tokens=1000,
+            messages=[{
+                "role": "user",
+                "content": message
+            }]
         )
         
-        summary = response.choices[0].message.content
+        summary = response.content[0].text
         return SummaryResponse(summary=summary)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
