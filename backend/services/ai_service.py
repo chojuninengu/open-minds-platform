@@ -27,8 +27,10 @@ class AIService:
         logger.info(f"Using model: {self.model}")
         logger.info(f"API Key present: {bool(self.api_key)}")
             
+        # Using both authentication methods to ensure one works
         self.headers = {
-            "X-API-Key": self.api_key,  # Using X-API-Key header
+            "X-API-Key": self.api_key,
+            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
