@@ -1,1 +1,1 @@
- 
+"""Nova AI API routes.""" 
