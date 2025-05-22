@@ -18,14 +18,19 @@ class AIService:
         """Initialize the AI service with configuration from environment variables."""
         self.api_key = os.getenv("CLAUDE_API_KEY")
         self.model = os.getenv("CLAUDE_MODEL", "claude-3-sonnet")
-        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com/api")
+        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com/v1")  # Updated to v1
         
         if not self.api_key:
             raise ValueError("CLAUDE_API_KEY environment variable is not set")
+        
+        logger.info(f"Initializing AI Service with URL: {self.api_url}")
+        logger.info(f"Using model: {self.model}")
+        logger.info(f"API Key present: {bool(self.api_key)}")
             
         self.headers = {
-            "X-API-Key": self.api_key,
-            "Content-Type": "application/json"
+            "Authorization": f"Bearer {self.api_key}",  # Changed back to Bearer auth
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         }
 
     async def _make_request(self, prompt: str) -> Dict[Any, Any]:
@@ -41,25 +46,45 @@ class AIService:
             Exception: If the API request fails.
         """
         try:
+            request_data = {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": "You are Nova, a helpful AI assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 1000
+            }
+            
+            logger.info(f"Making request to: {self.api_url}/chat/completions")
+            logger.info(f"Request headers: {self.headers}")
+            logger.info(f"Request data: {request_data}")
+            
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     f"{self.api_url}/chat/completions",
                     headers=self.headers,
-                    json={
-                        "model": self.model,
-                        "messages": [
-                            {"role": "system", "content": "You are Nova, a helpful AI assistant."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        "temperature": 0.7,
-                        "max_tokens": 1000
-                    },
+                    json=request_data,
                     timeout=30.0
                 )
+                
                 logger.info(f"API Response Status: {response.status_code}")
-                logger.info(f"API Response Headers: {response.headers}")
+                logger.info(f"API Response Headers: {dict(response.headers)}")
+                
+                try:
+                    response_json = response.json()
+                    logger.info(f"API Response Body: {response_json}")
+                except Exception as e:
+                    logger.error(f"Failed to parse response as JSON: {str(e)}")
+                    logger.info(f"Raw response text: {response.text}")
+                
                 response.raise_for_status()
-                return response.json()
+                return response_json
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP Status Error: {e.response.status_code}")
+            logger.error(f"Response headers: {dict(e.response.headers)}")
+            logger.error(f"Response body: {e.response.text}")
+            raise
         except Exception as e:
             logger.error(f"Error making AI API request: {str(e)}")
             raise
