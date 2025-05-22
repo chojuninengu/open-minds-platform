@@ -25,7 +25,7 @@ class AIService:
         logger.info(f"API Key present: {bool(self.api_key)}")
             
         self.headers = {
-            "X-API-Key": self.api_key,
+            "Authorization": f"Bearer {self.api_key}",  # Using Bearer token authentication
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -53,7 +53,7 @@ class AIService:
                 "max_tokens": 1000
             }
             
-            endpoint = f"{self.api_url}/api/chat/completions"  # Using /api/chat/completions
+            endpoint = f"{self.api_url}/v1/chat/completions"  # Using /v1/chat/completions
             logger.info(f"Making request to: {endpoint}")
             logger.info(f"Request headers: {self.headers}")
             logger.info(f"Request data: {request_data}")
