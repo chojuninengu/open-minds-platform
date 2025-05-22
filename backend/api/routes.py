@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from models.request import ChatRequest, TranslateRequest, SummaryRequest
-from models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
-from services.nova_ai import nova_ai
+from backend.models.request import ChatRequest, TranslateRequest, SummaryRequest
+from backend.models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
+from backend.services.nova_ai import nova_ai
 import logging
 
 # Configure logging
