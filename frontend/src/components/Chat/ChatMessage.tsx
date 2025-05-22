@@ -1,5 +1,4 @@
-import { Message } from '../../config/app.config';
-import { formatDate } from '../../lib/utils';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -7,36 +6,25 @@ import { Avatar } from '../ui/avatar';
 import { Bot, User } from 'lucide-react';
 
 interface ChatMessageProps {
-  message: Message;
+  text: string;
+  sender: 'user' | 'ai';
+  timestamp: number;
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
-  return (
-    <div
-      className={`flex items-start gap-3 ${
-        message.type === 'user' ? 'flex-row-reverse' : ''
-      }`}
-    >
-      <Avatar className={`w-8 h-8 ${message.type === 'assistant' ? 'bg-blue-500' : 'bg-gray-500'}`}>
-        {message.type === 'assistant' ? (
-          <Bot className="w-5 h-5 text-white" />
-        ) : (
-          <User className="w-5 h-5 text-white" />
-        )}
-      </Avatar>
+export const ChatMessage: React.FC<ChatMessageProps> = ({ text, sender, timestamp }) => {
+  const isAI = sender === 'ai';
+  const formattedTime = new Date(timestamp).toLocaleTimeString();
 
+  return (
+    <div className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
       <div
-        className={`flex flex-col max-w-[80%] ${
-          message.type === 'user' ? 'items-end' : 'items-start'
+        className={`max-w-[80%] rounded-lg p-4 ${
+          isAI
+            ? 'bg-blue-100 dark:bg-blue-900 text-gray-900 dark:text-gray-100'
+            : 'bg-green-100 dark:bg-green-900 text-gray-900 dark:text-gray-100'
         }`}
       >
-        <div
-          className={`rounded-lg px-4 py-2 ${
-            message.type === 'user'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-100 dark:bg-gray-800'
-          }`}
-        >
+        <div className="prose dark:prose-invert max-w-none">
           <ReactMarkdown
             components={{
               code({ node, inline, className, children, ...props }) {
@@ -58,13 +46,13 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               },
             }}
           >
-            {message.content}
+            {text}
           </ReactMarkdown>
         </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {formatDate(message.timestamp)}
-        </span>
+        <div className={`text-xs mt-2 ${isAI ? 'text-gray-600' : 'text-gray-600'}`}>
+          {formattedTime}
+        </div>
       </div>
     </div>
   );
-} 
+}; 
