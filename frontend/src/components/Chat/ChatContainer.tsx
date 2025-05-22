@@ -1,108 +1,81 @@
-import { useState, useRef, useEffect } from 'react';
-import { Message } from '../../config/app.config';
-import { generateMessageId } from '../../lib/utils';
-import ChatMessage from './ChatMessage';
-import ChatInput from './ChatInput';
-import { ScrollArea } from '../ui/scroll-area';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChatMessage } from './ChatMessage';
+import { ChatInput } from './ChatInput';
 
-const generateResponse = (message: string): string => {
-  const greetings = ['hello', 'hi', 'hey', 'greetings'];
-  const howAreYou = ['how are you', 'how are you doing', 'how do you do'];
-  const messageLower = message.toLowerCase();
+interface Message {
+  id: string;
+  text: string;
+  sender: 'user' | 'ai';
+  timestamp: number;
+}
 
-  if (greetings.some(g => messageLower.includes(g))) {
-    return "Hello! I'm Nova, your AI assistant. How can I help you today? 😊";
-  }
-
-  if (howAreYou.some(h => messageLower.includes(h))) {
-    return "I'm functioning well, thank you for asking! I'm here to help you with any questions or tasks you might have. What would you like to work on?";
-  }
-
-  if (messageLower.includes('code') || messageLower.includes('programming')) {
-    return `I'd be happy to help with coding! Here's a simple example of what I can do:
-
-\`\`\`python
-def greet(name: str) -> str:
-    """
-    Returns a personalized greeting message.
-    """
-    return f"Hello, {name}! Welcome to coding with Nova."
-
-# Example usage
-message = greet("User")
-print(message)
-\`\`\`
-
-What specific programming topic would you like to explore?`;
-  }
-
-  return `I understand you're saying "${message}". I'm here to help with:
-
-- Programming and coding questions
-- Learning and tutoring
-- General knowledge queries
-- Problem-solving
-
-What specific area would you like to focus on?`;
-};
-
-export default function ChatContainer() {
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem('chat_history');
-    return saved ? JSON.parse(saved) : [];
-  });
+export const ChatContainer: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    localStorage.setItem('chat_history', JSON.stringify(messages));
-  }, [messages]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Load messages from localStorage on component mount
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
     }
-  };
+  }, []);
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return;
+  useEffect(() => {
+    // Save messages to localStorage whenever they change
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+    // Scroll to bottom
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
+  const handleSendMessage = async (text: string) => {
+    // Add user message
     const userMessage: Message = {
-      id: generateMessageId(),
-      type: 'user',
-      content: content.trim(),
+      id: Date.now().toString(),
+      text,
+      sender: 'user',
       timestamp: Date.now(),
-      status: 'sent',
     };
-
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
     try {
-      // Simulate API call with more natural responses
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const aiResponse: Message = {
-        id: generateMessageId(),
-        type: 'assistant',
-        content: generateResponse(content),
-        timestamp: Date.now(),
-        status: 'sent',
-      };
+      // Send request to backend
+      const response = await fetch('http://localhost:8000/api/nova/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: text,
+          language: 'en',
+          context: messages.slice(-3).map(m => `${m.sender}: ${m.text}`).join('\n'),
+        }),
+      });
 
-      setMessages(prev => [...prev, aiResponse]);
-    } catch (error) {
-      console.error('Error:', error);
-      const errorMessage: Message = {
-        id: generateMessageId(),
-        type: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again.',
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      
+      // Add AI response
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: data.answer,
+        sender: 'ai',
         timestamp: Date.now(),
-        status: 'error',
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: 'Sorry, I encountered an error. Please try again.',
+        sender: 'ai',
+        timestamp: Date.now(),
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -111,34 +84,28 @@ export default function ChatContainer() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-gray-900">
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4 max-w-3xl mx-auto">
-          {messages.length === 0 && (
-            <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
-              <p className="text-lg font-medium">Welcome to Nova AI Assistant! 👋</p>
-              <p className="mt-2">Ask me anything about programming, learning, or general topics.</p>
-            </div>
-          )}
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 animate-pulse">
-                <div className="h-4 w-4 bg-gray-400 dark:bg-gray-600 rounded-full" />
-              </div>
-            </div>
-          )}
-          <div ref={scrollRef} />
-        </div>
-      </ScrollArea>
-      
-      <div className="border-t border-gray-200 dark:border-gray-800">
-        <div className="max-w-3xl mx-auto p-4">
-          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
-        </div>
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message) => (
+          <ChatMessage
+            key={message.id}
+            text={message.text}
+            sender={message.sender}
+            timestamp={message.timestamp}
+          />
+        ))}
+        {isLoading && (
+          <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
+            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100" />
+            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200" />
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
       </div>
     </div>
   );
-} 
+}; 
