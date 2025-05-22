@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from ..models.request import ChatRequest, TranslateRequest, SummaryRequest
-from ..models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
-from ..services.ai_service import ai_service
+from models.request import ChatRequest, TranslateRequest, SummaryRequest
+from models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
+from services.ai_service import ai_service
 import logging
 
 # Configure logging
