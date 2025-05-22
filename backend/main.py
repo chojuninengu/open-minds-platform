@@ -17,10 +17,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
+# Configure CORS for GitHub Pages
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=[
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:5174",  # Alternative port
+        "https://*.github.io"     # GitHub Pages
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,8 +36,17 @@ app.include_router(router)
 # Root endpoint
 @app.get("/")
 async def root():
-    """Root endpoint that redirects to /docs."""
-    return {"message": "Welcome to Nova AI API! Visit /docs for API documentation."}
+    """Root endpoint that provides API information."""
+    return {
+        "message": "Nova AI API is live",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "endpoints": {
+            "chat": "/api/nova/ask",
+            "translate": "/api/nova/translate",
+            "summary": "/api/nova/summary"
+        }
+    }
 
 if __name__ == "__main__":
     import uvicorn
