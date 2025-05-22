@@ -49,7 +49,7 @@ export const ChatContainer: React.FC = () => {
         },
         body: JSON.stringify({
           message: text,
-          model: 'coding-teacher'
+          model: "coding-teacher"
         }),
       });
 
