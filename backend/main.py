@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 from dotenv import load_dotenv
-import httpx
 from anthropic import Anthropic
 
 # Load environment variables
@@ -49,67 +48,62 @@ class SummaryResponse(BaseModel):
     summary: str
 
 # System prompt for Nova
-NOVA_SYSTEM_PROMPT = """You are Nova, an AI learning assistant for African students. 
-You explain simply and clearly, in a supportive tone. 
-Give short, relatable answers, provide examples, and suggest follow-up questions. 
-Translate in French if required."""
+NOVA_SYSTEM_PROMPT = """You are Nova, an AI learning assistant for students. 
+You explain concepts clearly and provide helpful examples.
+If asked about programming, always include code examples.
+Keep responses concise but informative.
+Be friendly and encouraging."""
 
 @app.post("/api/nova/ask", response_model=AskResponse)
 async def ask_nova(request: AskRequest):
     try:
-        message = f"{NOVA_SYSTEM_PROMPT}\n\nContext: {request.context}\nQuestion: {request.prompt}"
+        # Prepare the message with context
+        message = f"Context: {request.context}\nQuestion: {request.prompt}"
+        
+        # Call Claude API
         response = anthropic.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1000,
             messages=[{
                 "role": "user",
-                "content": message
+                "content": f"{NOVA_SYSTEM_PROMPT}\n\n{message}"
             }]
         )
         
-        answer = response.content[0].text
-        return AskResponse(answer=answer, language=request.language)
+        return AskResponse(answer=response.content[0].text, language=request.language)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/nova/translate", response_model=TranslateResponse)
 async def translate_text(request: TranslateRequest):
     try:
-        # Using LibreTranslate API
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://libretranslate.de/translate",
-                json={
-                    "q": request.text,
-                    "source": "auto",
-                    "target": request.targetLang,
-                    "format": "text"
-                }
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                return TranslateResponse(translatedText=data["translatedText"])
-            else:
-                raise HTTPException(status_code=500, detail="Translation service error")
+        # Use Claude for translation
+        response = anthropic.messages.create(
+            model="claude-3-sonnet-20240229",
+            max_tokens=1000,
+            messages=[{
+                "role": "user",
+                "content": f"Translate the following text to {request.targetLang}:\n\n{request.text}"
+            }]
+        )
+        
+        return TranslateResponse(translatedText=response.content[0].text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/nova/summary", response_model=SummaryResponse)
 async def summarize_text(request: SummaryRequest):
     try:
-        message = f"Summarize the following text concisely:\n\n{request.text}"
         response = anthropic.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1000,
             messages=[{
                 "role": "user",
-                "content": message
+                "content": f"Summarize the following text concisely:\n\n{request.text}"
             }]
         )
         
-        summary = response.content[0].text
-        return SummaryResponse(summary=summary)
+        return SummaryResponse(summary=response.content[0].text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
