@@ -42,15 +42,14 @@ export const ChatContainer: React.FC = () => {
 
     try {
       // Send request to backend
-      const response = await fetch('http://localhost:8000/api/nova/ask', {
+      const response = await fetch('http://localhost:8001/api/nova/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: text,
-          language: 'en',
-          context: messages.slice(-3).map(m => `${m.sender}: ${m.text}`).join('\n'),
+          message: text,
+          model: 'coding-teacher'
         }),
       });
 
@@ -63,7 +62,7 @@ export const ChatContainer: React.FC = () => {
       // Add AI response
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: data.answer,
+        text: data.response,
         sender: 'ai',
         timestamp: Date.now(),
       };
