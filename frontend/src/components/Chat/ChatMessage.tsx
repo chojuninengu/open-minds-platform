@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 interface ChatMessageProps {
@@ -7,7 +7,7 @@ interface ChatMessageProps {
   timestamp: number;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ text, sender, timestamp }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({ text, sender, timestamp }) => {
   const isAI = sender === 'ai';
   const formattedTime = new Date(timestamp).toLocaleTimeString();
 
@@ -21,20 +21,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ text, sender, timestam
         }`}
       >
         <div className="prose dark:prose-invert max-w-none">
-          <ReactMarkdown
-            components={{
-              code({ className, children }) {
-                const match = /language-(\w+)/.exec(className || '');
-                return (
-                  <pre className={`${className} p-4 rounded bg-gray-800 text-gray-100`}>
-                    <code>{children}</code>
-                  </pre>
-                );
-              },
-            }}
-          >
-            {text}
-          </ReactMarkdown>
+          <ReactMarkdown>{text}</ReactMarkdown>
         </div>
         <div className={`text-xs mt-2 ${isAI ? 'text-gray-600' : 'text-gray-600'}`}>
           {formattedTime}
