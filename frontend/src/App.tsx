@@ -1,10 +1,9 @@
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import Chat from './pages/Chat';
+import ChatContainer from './components/Chat/ChatContainer';
 
 function App() {
   return (
-    <div>
-      Hello World
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <ChatContainer />
     </div>
   );
 }
