@@ -1,24 +1,12 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/layout/Layout';
-import Home from './pages/Home';
-import About from './pages/About';
-import Courses from './pages/Courses';
-import { Progress } from './pages/Progress';
 import Chat from './pages/Chat';
-import './App.css';
 
 function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/progress" element={<Progress />} />
-          <Route path="/chat" element={<Chat />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/" element={<Chat />} />
+      </Routes>
     </Router>
   );
 }
