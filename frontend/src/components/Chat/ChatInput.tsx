@@ -1,12 +1,11 @@
-import * as React from 'react';
-import { useState, KeyboardEvent } from 'react';
+import { FC, useState, KeyboardEvent } from 'react';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }) => {
+export const ChatInput: FC<ChatInputProps> = ({ onSendMessage, disabled = false }) => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = () => {
