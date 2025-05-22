@@ -3,11 +3,9 @@ import Chat from './pages/Chat';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Chat />} />
-      </Routes>
-    </Router>
+    <div>
+      Hello World
+    </div>
   );
 }
 
