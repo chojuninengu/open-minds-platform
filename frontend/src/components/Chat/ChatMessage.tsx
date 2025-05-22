@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Avatar } from '../ui/avatar';
 import { Bot, User } from 'lucide-react';
@@ -27,14 +27,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ text, sender, timestam
         <div className="prose dark:prose-invert max-w-none">
           <ReactMarkdown
             components={{
-              code({ inline, className, children, ...props }) {
+              code({ className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
-                return !inline && match ? (
+                return match ? (
                   <SyntaxHighlighter
-                    {...props}
-                    style={vscDarkPlus as any}
+                    style={vscDarkPlus}
                     language={match[1]}
                     PreTag="div"
+                    {...props}
                   >
                     {String(children).replace(/\n$/, '')}
                   </SyntaxHighlighter>
