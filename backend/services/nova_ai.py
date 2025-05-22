@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
-from models.request import NovaModel
+from backend.models.request import NovaModel
 
 # Load environment variables
 load_dotenv()
