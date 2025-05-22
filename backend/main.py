@@ -5,6 +5,11 @@ from typing import Optional
 import os
 from dotenv import load_dotenv
 from anthropic import Anthropic
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -22,7 +27,13 @@ app.add_middleware(
 )
 
 # Initialize Anthropic client
-anthropic = Anthropic(api_key=os.getenv("CLAUDE_API_KEY"))
+api_key = os.getenv("CLAUDE_API_KEY")
+if not api_key:
+    logger.error("CLAUDE_API_KEY not found in environment variables")
+    raise ValueError("CLAUDE_API_KEY not found in environment variables")
+
+logger.info("Initializing Anthropic client...")
+anthropic = Anthropic(api_key=api_key)
 
 # Pydantic models
 class AskRequest(BaseModel):
@@ -57,10 +68,13 @@ Be friendly and encouraging."""
 @app.post("/api/nova/ask", response_model=AskResponse)
 async def ask_nova(request: AskRequest):
     try:
+        logger.info(f"Received ask request with prompt: {request.prompt}")
+        
         # Prepare the message with context
         message = f"Context: {request.context}\nQuestion: {request.prompt}"
         
         # Call Claude API
+        logger.info("Calling Claude API...")
         response = anthropic.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1000,
@@ -70,13 +84,17 @@ async def ask_nova(request: AskRequest):
             }]
         )
         
+        logger.info("Successfully received response from Claude API")
         return AskResponse(answer=response.content[0].text, language=request.language)
     except Exception as e:
+        logger.error(f"Error in ask_nova: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/nova/translate", response_model=TranslateResponse)
 async def translate_text(request: TranslateRequest):
     try:
+        logger.info(f"Received translation request for language: {request.targetLang}")
+        
         # Use Claude for translation
         response = anthropic.messages.create(
             model="claude-3-sonnet-20240229",
@@ -89,11 +107,14 @@ async def translate_text(request: TranslateRequest):
         
         return TranslateResponse(translatedText=response.content[0].text)
     except Exception as e:
+        logger.error(f"Error in translate_text: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/nova/summary", response_model=SummaryResponse)
 async def summarize_text(request: SummaryRequest):
     try:
+        logger.info(f"Received summary request")
+        
         response = anthropic.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1000,
@@ -105,6 +126,7 @@ async def summarize_text(request: SummaryRequest):
         
         return SummaryResponse(summary=response.content[0].text)
     except Exception as e:
+        logger.error(f"Error in summarize_text: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
