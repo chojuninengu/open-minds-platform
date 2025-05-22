@@ -16,9 +16,9 @@ class AIService:
     
     def __init__(self):
         """Initialize the AI service with configuration from environment variables."""
-        self.api_key = os.getenv("CLAUDE_API_KEY")
-        self.model = os.getenv("CLAUDE_MODEL", "claude-3-sonnet")
-        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com")  # Removed /v1
+        self.api_key = os.getenv("CLAUDE_API_KEY", "sk-e6ded9cfd4a34653afe9e0e33ff2e56b")
+        self.model = os.getenv("CLAUDE_MODEL", "coder")  # Using the coder model as default
+        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com/api")  # Updated to match config
         
         if not self.api_key:
             raise ValueError("CLAUDE_API_KEY environment variable is not set")
@@ -28,7 +28,7 @@ class AIService:
         logger.info(f"API Key present: {bool(self.api_key)}")
             
         self.headers = {
-            "X-API-Key": self.api_key,  # Changed back to X-API-Key
+            "Authorization": f"Bearer {self.api_key}",  # Using Bearer token as shown in config
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -56,7 +56,7 @@ class AIService:
                 "max_tokens": 1000
             }
             
-            endpoint = f"{self.api_url}/api/chat/completions"
+            endpoint = f"{self.api_url}/chat/completions"
             logger.info(f"Making request to: {endpoint}")
             logger.info(f"Request headers: {self.headers}")
             logger.info(f"Request data: {request_data}")
