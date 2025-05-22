@@ -16,21 +16,16 @@ class AIService:
     
     def __init__(self):
         """Initialize the AI service with configuration from environment variables."""
-        self.api_key = os.getenv("CLAUDE_API_KEY", "sk-e6ded9cfd4a34653afe9e0e33ff2e56b")
+        self.api_key = "sk-94fbdf40052a41ebb9ffb2f4949fc117"  # Using the provided API key
         self.model = os.getenv("CLAUDE_MODEL", "coder")  # Using the coder model as default
-        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com")  # Using base URL
-        
-        if not self.api_key:
-            raise ValueError("CLAUDE_API_KEY environment variable is not set")
+        self.api_url = "https://ai.kivoyo.com"  # Using base URL
         
         logger.info(f"Initializing AI Service with URL: {self.api_url}")
         logger.info(f"Using model: {self.model}")
         logger.info(f"API Key present: {bool(self.api_key)}")
             
-        # Using both authentication methods to ensure one works
         self.headers = {
             "X-API-Key": self.api_key,
-            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
