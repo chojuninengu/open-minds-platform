@@ -18,7 +18,7 @@ class AIService:
         """Initialize the AI service with configuration from environment variables."""
         self.api_key = os.getenv("CLAUDE_API_KEY")
         self.model = os.getenv("CLAUDE_MODEL", "claude-3-sonnet")
-        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com/v1")  # Updated to v1
+        self.api_url = os.getenv("AI_API_URL", "https://ai.kivoyo.com")  # Removed /v1
         
         if not self.api_key:
             raise ValueError("CLAUDE_API_KEY environment variable is not set")
@@ -28,7 +28,7 @@ class AIService:
         logger.info(f"API Key present: {bool(self.api_key)}")
             
         self.headers = {
-            "Authorization": f"Bearer {self.api_key}",  # Changed back to Bearer auth
+            "X-API-Key": self.api_key,  # Changed back to X-API-Key
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -56,13 +56,14 @@ class AIService:
                 "max_tokens": 1000
             }
             
-            logger.info(f"Making request to: {self.api_url}/chat/completions")
+            endpoint = f"{self.api_url}/api/chat/completions"
+            logger.info(f"Making request to: {endpoint}")
             logger.info(f"Request headers: {self.headers}")
             logger.info(f"Request data: {request_data}")
             
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    f"{self.api_url}/chat/completions",
+                    endpoint,
                     headers=self.headers,
                     json=request_data,
                     timeout=30.0
