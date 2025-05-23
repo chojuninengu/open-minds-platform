@@ -1,4 +1,4 @@
-# 🌍 Open Minds Platform
+ # 🌍 Open Minds Platform
 
 **Open Minds** is a global, open-source education platform built to make learning **free**, **inclusive**, and **personalized** for everyone, everywhere — even offline.  
 We dream of a world where access to knowledge is not a privilege, but a basic right.
