@@ -4,7 +4,7 @@ export const APP_CONFIG = {
   api: {
     baseUrl: process.env.NODE_ENV === 'development' 
       ? 'http://localhost:8000'
-      : 'https://ai.kivoyo.com',
+      : 'https://open-minds-platform-api.onrender.com',
     endpoints: {
       chat: '/api/nova/ask',
       translate: '/api/nova/translate',
