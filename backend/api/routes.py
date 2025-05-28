@@ -26,17 +26,16 @@ async def chat(request: ChatRequest):
     Example request:
         POST /api/nova/ask
         {
-            "message": "Explain recursion",
-            "model": "coder"
+            "message": "Explain recursion"
         }
     """
     try:
-        logger.info(f"Chat request - Message: {request.message}, Model: {request.model}")
+        logger.info(f"Chat request - Message: {request.message}")
         
         if not request.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
             
-        response = await ai_service.get_chat_response(request.message, request.model)
+        response = await ai_service.get_chat_response(request.message)
         logger.info("Successfully generated chat response")
         return ChatResponse(**response)
     except HTTPException:
@@ -68,7 +67,7 @@ async def translate(request: TranslateRequest):
         if not request.target_language.strip():
             raise HTTPException(status_code=400, detail="Target language cannot be empty")
             
-        response = await ai_service.translate_text(request.text, request.target_language, request.model)
+        response = await ai_service.translate_text(request.text, request.target_language)
         logger.info("Successfully translated text")
         return TranslateResponse(**response)
     except HTTPException:
@@ -96,7 +95,7 @@ async def summarize(request: SummaryRequest):
         if not request.text.strip():
             raise HTTPException(status_code=400, detail="Text cannot be empty")
             
-        response = await ai_service.summarize_text(request.text, request.model)
+        response = await ai_service.summarize_text(request.text)
         logger.info("Successfully generated summary")
         return SummaryResponse(**response)
     except HTTPException:
