@@ -17,10 +17,8 @@ pip install -e .
 
 3. Create a `.env` file with the following content:
 ```env
-# Claude AI API Configuration
-CLAUDE_API_KEY=your_api_key_here
-CLAUDE_API_URL=https://ai.kivoyo.com
-CLAUDE_MODEL=coding-teacher
+# Groq AI API Configuration
+GROQ_API_KEY=your_groq_api_key_here
 
 # Server Configuration
 HOST=0.0.0.0
@@ -28,7 +26,7 @@ PORT=8000
 DEBUG=True
 
 # CORS Configuration
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174,https://ju-nine.github.io
 ```
 
 4. Run the server:
