@@ -23,7 +23,14 @@ app = FastAPI(
 )
 
 # Configure CORS
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174").split(",")
+default_origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://ju-nine.github.io"
+]
+allowed_origins = os.getenv("ALLOWED_ORIGINS", ",".join(default_origins)).split(",")
+logger.info(f"Configured CORS with origins: {allowed_origins}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
