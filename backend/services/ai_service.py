@@ -17,7 +17,7 @@ class AIService:
     
     def __init__(self):
         """Initialize the AI service with configuration from environment variables."""
-        self.api_key = os.getenv("GROQ_API_KEY", "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")
+# self.api_key = os.getenv("GROQ_API_KEY", "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") 
         if not self.api_key:
             raise ValueError("GROQ_API_KEY environment variable is not set")
             
