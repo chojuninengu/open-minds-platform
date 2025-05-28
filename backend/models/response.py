@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
+class HealthResponse(BaseModel):
+    """Response model for the health check endpoint."""
+    message: str = Field(..., description="Health check message")
+
 class ChatResponse(BaseModel):
     """Response model for the chat endpoint.
     
@@ -11,10 +15,10 @@ class ChatResponse(BaseModel):
         }
     """
     response: str = Field(..., description="AI-generated response")
-    model: str = Field(..., description="The AI model used for the response")
+    model: str = Field(..., description="The AI model used")
 
 class TranslateResponse(BaseModel):
-    """Response model for the translation endpoint.
+    """Response model for the translate endpoint.
     
     Example:
         {
@@ -24,11 +28,10 @@ class TranslateResponse(BaseModel):
         }
     """
     translated: str = Field(..., description="Translated text")
-    source_language: Optional[str] = Field(None, description="Detected source language")
-    target_language: str = Field(..., description="Target language used")
+    model: str = Field(..., description="The AI model used")
 
 class SummaryResponse(BaseModel):
-    """Response model for the summarization endpoint.
+    """Response model for the summary endpoint.
     
     Example:
         {
@@ -37,16 +40,4 @@ class SummaryResponse(BaseModel):
         }
     """
     summary: str = Field(..., description="Summarized text")
-    length_reduction: Optional[str] = Field(None, description="Percentage of length reduction")
-
-class HealthResponse(BaseModel):
-    """Response model for the health check endpoint.
-    
-    Example:
-        {
-            "message": "Nova API is live",
-            "version": "1.0.0"
-        }
-    """
-    message: str = Field(..., description="API status message")
-    version: str = Field(default="1.0.0", description="API version") 
+    model: str = Field(..., description="The AI model used") 
