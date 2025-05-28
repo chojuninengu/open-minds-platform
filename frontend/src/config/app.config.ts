@@ -2,11 +2,13 @@ export const APP_CONFIG = {
   name: 'Nova AI',
   description: 'Your AI Assistant',
   api: {
-    baseUrl: 'https://ai.kivoyo.com',
+    baseUrl: process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:8000'
+      : 'https://ai.kivoyo.com',
     endpoints: {
-      chat: '/api/chat',
-      image: '/api/image',
-      code: '/api/code',
+      chat: '/api/nova/ask',
+      translate: '/api/nova/translate',
+      summary: '/api/nova/summary',
     },
   },
   features: {
@@ -26,13 +28,14 @@ export const APP_CONFIG = {
   },
 } as const;
 
-export type MessageType = 'user' | 'assistant';
+export type MessageType = 'text' | 'code' | 'image';
 
 export interface Message {
   id: string;
   type: MessageType;
   content: string;
   timestamp: number;
+  sender: 'user' | 'ai';
   status: 'sending' | 'sent' | 'error';
   metadata?: {
     codeLanguage?: string;
