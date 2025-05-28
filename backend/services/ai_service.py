@@ -1,6 +1,6 @@
 import os
 import httpx
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import logging
 from dotenv import load_dotenv
 
@@ -12,51 +12,64 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class AIService:
-    """Service for interacting with the Claude AI API via ai.kivoyo.com."""
+    """Service for interacting with the Claude AI API."""
     
     def __init__(self):
         """Initialize the AI service with configuration from environment variables."""
-        self.api_key = "sk-94fbdf40052a41ebb9ffb2f4949fc117"  # Using the provided API key
-        self.model = os.getenv("CLAUDE_MODEL", "coder")  # Using the coder model as default
-        self.api_url = "https://ai.kivoyo.com"  # Using base URL
+        self.api_key = os.getenv("CLAUDE_API_KEY")
+        if not self.api_key:
+            raise ValueError("CLAUDE_API_KEY environment variable is not set")
+            
+        self.api_url = os.getenv("CLAUDE_API_URL", "https://ai.kivoyo.com")
+        self.default_model = os.getenv("CLAUDE_MODEL", "coding-teacher")
         
         logger.info(f"Initializing AI Service with URL: {self.api_url}")
-        logger.info(f"Using model: {self.model}")
-        logger.info(f"API Key present: {bool(self.api_key)}")
+        logger.info(f"Using default model: {self.default_model}")
             
         self.headers = {
-            "Authorization": f"Bearer {self.api_key}",  # Using Bearer token authentication
+            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
 
-    async def _make_request(self, prompt: str) -> Dict[Any, Any]:
-        """Make a request to the Kivoyo AI API.
+    async def _make_request(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        system_message: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: int = 2000
+    ) -> Dict[Any, Any]:
+        """Make a request to the AI API.
         
         Args:
-            prompt: The prompt to send to the AI.
+            prompt: The prompt to send to the AI
+            model: Optional model override
+            system_message: Optional system message
+            temperature: Sampling temperature (0.0 to 1.0)
+            max_tokens: Maximum tokens in response
             
         Returns:
-            Dict containing the API response.
+            Dict containing the API response
             
         Raises:
-            Exception: If the API request fails.
+            Exception: If the API request fails
         """
         try:
+            messages = []
+            if system_message:
+                messages.append({"role": "system", "content": system_message})
+            messages.append({"role": "user", "content": prompt})
+            
             request_data = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": "You are Nova, a helpful AI assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.7,
-                "max_tokens": 1000
+                "model": model or self.default_model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens
             }
             
-            endpoint = f"{self.api_url}/v1/chat/completions"  # Using /v1/chat/completions
-            logger.info(f"Making request to: {endpoint}")
-            logger.info(f"Request headers: {self.headers}")
-            logger.info(f"Request data: {request_data}")
+            endpoint = f"{self.api_url}/v1/chat/completions"
+            logger.info(f"Making request to model: {model or self.default_model}")
             
             async with httpx.AsyncClient() as client:
                 response = await client.post(
@@ -66,64 +79,80 @@ class AIService:
                     timeout=30.0
                 )
                 
-                logger.info(f"API Response Status: {response.status_code}")
-                logger.info(f"API Response Headers: {dict(response.headers)}")
+                if response.status_code != 200:
+                    error_detail = response.json().get('detail', 'Unknown error')
+                    raise Exception(f"API request failed: {error_detail}")
+                    
+                return response.json()
                 
-                try:
-                    response_json = response.json()
-                    logger.info(f"API Response Body: {response_json}")
-                except Exception as e:
-                    logger.error(f"Failed to parse response as JSON: {str(e)}")
-                    logger.info(f"Raw response text: {response.text}")
-                
-                response.raise_for_status()
-                return response_json
-        except httpx.HTTPStatusError as e:
-            logger.error(f"HTTP Status Error: {e.response.status_code}")
-            logger.error(f"Response headers: {dict(e.response.headers)}")
-            logger.error(f"Response body: {e.response.text}")
-            raise
         except Exception as e:
-            logger.error(f"Error making AI API request: {str(e)}")
+            logger.error(f"Error making AI request: {str(e)}")
             raise
 
-    async def get_chat_response(self, message: str) -> str:
+    async def get_chat_response(
+        self,
+        message: str,
+        model: Optional[str] = None
+    ) -> Dict[str, str]:
         """Get a chat response from the AI.
         
         Args:
-            message: The user's message.
+            message: The user's message
+            model: Optional model override
             
         Returns:
-            The AI's response.
+            Dict with response text and model used
         """
-        system_prompt = """You are Nova, an AI learning assistant for students.
+        system_message = """You are Nova, an AI learning assistant for students.
         You explain concepts clearly and provide helpful examples.
         If asked about programming, always include code examples.
         Keep responses concise but informative.
         Be friendly and encouraging."""
         
         try:
-            response = await self._make_request(message)
-            return response["choices"][0]["message"]["content"]
+            response = await self._make_request(
+                prompt=message,
+                model=model,
+                system_message=system_message
+            )
+            
+            return {
+                "response": response["choices"][0]["message"]["content"],
+                "model": model or self.default_model
+            }
         except Exception as e:
             logger.error(f"Error getting chat response: {str(e)}")
             raise
 
-    async def translate_text(self, text: str, target_language: str) -> str:
+    async def translate_text(
+        self,
+        text: str,
+        target_language: str,
+        model: Optional[str] = None
+    ) -> Dict[str, str]:
         """Translate text using the AI.
         
         Args:
-            text: Text to translate.
-            target_language: Target language code.
+            text: Text to translate
+            target_language: Target language
+            model: Optional model override
             
         Returns:
-            Translated text.
+            Dict with translated text and model used
         """
         prompt = f"Translate the following text to {target_language}. Only respond with the translation, no explanations:\n\n{text}"
         
         try:
-            response = await self._make_request(prompt)
-            return response["choices"][0]["message"]["content"]
+            response = await self._make_request(
+                prompt=prompt,
+                model=model,
+                temperature=0.3  # Lower temperature for more consistent translations
+            )
+            
+            return {
+                "translated": response["choices"][0]["message"]["content"].strip(),
+                "model": model or self.default_model
+            }
         except Exception as e:
             logger.error(f"Error translating text: {str(e)}")
             raise
