@@ -5,11 +5,26 @@ interface ChatMessageProps {
   text: string;
   sender: 'user' | 'ai';
   timestamp: number;
+  status: 'sending' | 'sent' | 'error';
+  error?: string;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ text, sender, timestamp }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({ text, sender, timestamp, status, error }) => {
   const isAI = sender === 'ai';
   const formattedTime = new Date(timestamp).toLocaleTimeString();
+
+  const getStatusColor = () => {
+    switch (status) {
+      case 'sending':
+        return 'text-yellow-500';
+      case 'sent':
+        return 'text-green-500';
+      case 'error':
+        return 'text-red-500';
+      default:
+        return 'text-gray-500';
+    }
+  };
 
   return (
     <div className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
@@ -23,8 +38,14 @@ export const ChatMessage: FC<ChatMessageProps> = ({ text, sender, timestamp }) =
         <div className="prose dark:prose-invert max-w-none">
           <ReactMarkdown>{text}</ReactMarkdown>
         </div>
-        <div className={`text-xs mt-2 ${isAI ? 'text-gray-600' : 'text-gray-600'}`}>
-          {formattedTime}
+        <div className="flex items-center gap-2 mt-2 text-xs">
+          <span className={getStatusColor()}>
+            {status === 'sending' ? '⏳' : status === 'sent' ? '✓' : '⚠️'}
+          </span>
+          <span className="text-gray-600 dark:text-gray-400">{formattedTime}</span>
+          {error && (
+            <span className="text-red-500 dark:text-red-400">{error}</span>
+          )}
         </div>
       </div>
     </div>
