@@ -17,3 +17,6 @@ dist/
 .env
 .idea/
 .vscode/
+backend/package-lock.json
+frontend/package-lock.json
+
