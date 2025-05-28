@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-from api.routes import router
+from backend.api.routes import router
 from dotenv import load_dotenv
 import os
 
@@ -33,7 +33,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(router, prefix="/api/nova")
+app.include_router(router)
 
 # Root endpoint
 @app.get("/")
