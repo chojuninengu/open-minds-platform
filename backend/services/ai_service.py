@@ -13,16 +13,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class AIService:
-    """Service for interacting with the Claude AI API."""
+    """Service for interacting with the Groq API."""
     
     def __init__(self):
         """Initialize the AI service with configuration from environment variables."""
-        self.api_key = os.getenv("CLAUDE_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY", "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")
         if not self.api_key:
-            raise ValueError("CLAUDE_API_KEY environment variable is not set")
+            raise ValueError("GROQ_API_KEY environment variable is not set")
             
-        self.api_url = os.getenv("CLAUDE_API_URL", "https://ai.kivoyo.com")
-        self.default_model = os.getenv("CLAUDE_MODEL", "coding-teacher")
+        self.api_url = "https://api.groq.com/openai/v1"
+        self.default_model = "meta-llama/llama-4-scout-17b-16e-instruct"
         
         logger.info(f"Initializing AI Service with URL: {self.api_url}")
         logger.info(f"Using default model: {self.default_model}")
@@ -55,7 +55,7 @@ class AIService:
                 "max_tokens": max_tokens
             }
             
-            endpoint = f"{self.api_url}/v1/chat/completions"
+            endpoint = f"{self.api_url}/chat/completions"
             logger.info(f"Making request to model: {model or self.default_model}")
             logger.info(f"Request data: {json.dumps(request_data, indent=2)}")
             
@@ -76,7 +76,7 @@ class AIService:
                     raise Exception("Failed to parse API response")
 
                 if response.status_code != 200:
-                    error_detail = response_json.get('detail', 'Unknown error') if response_json else 'Unknown error'
+                    error_detail = response_json.get('error', {}).get('message', 'Unknown error') if response_json else 'Unknown error'
                     logger.error(f"API request failed with status {response.status_code}")
                     logger.error(f"Error detail: {error_detail}")
                     logger.error(f"Response headers: {dict(response.headers)}")
