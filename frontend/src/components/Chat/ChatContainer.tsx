@@ -1,12 +1,15 @@
 import { FC, useState, useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
+import { APP_CONFIG } from '../../config/app.config';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'ai';
   timestamp: number;
+  status: 'sending' | 'sent' | 'error';
+  error?: string;
 }
 
 export const ChatContainer: FC = () => {
@@ -30,19 +33,22 @@ export const ChatContainer: FC = () => {
   }, [messages]);
 
   const handleSendMessage = async (text: string) => {
+    if (!text.trim()) return;
+
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       text,
       sender: 'user',
       timestamp: Date.now(),
+      status: 'sending'
     };
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
     try {
       // Send request to backend
-      const response = await fetch('http://localhost:8001/api/nova/ask', {
+      const response = await fetch(`${APP_CONFIG.api.baseUrl}${APP_CONFIG.api.endpoints.chat}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,10 +60,15 @@ export const ChatContainer: FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get AI response');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      // Update user message status
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
+      ));
       
       // Add AI response
       const aiMessage: Message = {
@@ -65,16 +76,25 @@ export const ChatContainer: FC = () => {
         text: data.response,
         sender: 'ai',
         timestamp: Date.now(),
+        status: 'sent'
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Error getting AI response:', error);
+      
+      // Update user message status to error
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id ? { ...msg, status: 'error' } : msg
+      ));
+      
       // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: 'Sorry, I encountered an error. Please try again.',
         sender: 'ai',
         timestamp: Date.now(),
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -91,6 +111,8 @@ export const ChatContainer: FC = () => {
             text={message.text}
             sender={message.sender}
             timestamp={message.timestamp}
+            status={message.status}
+            error={message.error}
           />
         ))}
         {isLoading && (
