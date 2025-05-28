@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from backend.models.request import ChatRequest, TranslateRequest, SummaryRequest
-from backend.models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
-from backend.services.nova_ai import nova_ai
+from ..models.request import ChatRequest, TranslateRequest, SummaryRequest
+from ..models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
+from ..services.ai_service import ai_service
 import logging
 
 # Configure logging
@@ -28,7 +28,7 @@ async def chat(request: ChatRequest):
     """
     try:
         logger.info(f"Chat request - Message: {request.message}, Model: {request.model}")
-        response = await nova_ai.get_chat_response(request.message, request.model)
+        response = await ai_service.get_chat_response(request.message, request.model)
         logger.info("Successfully generated chat response")
         return ChatResponse(**response)
     except Exception as e:
@@ -47,8 +47,8 @@ async def translate(request: TranslateRequest):
         }
     """
     try:
-        logger.info(f"Translation request - Target language: {request.target_language}")
-        response = await nova_ai.translate_text(request.text, request.target_language)
+        logger.info(f"Translation request - Text: {request.text[:50]}..., Target: {request.target_language}")
+        response = await ai_service.translate_text(request.text, request.target_language)
         logger.info("Successfully translated text")
         return TranslateResponse(**response)
     except Exception as e:
@@ -66,10 +66,10 @@ async def summarize(request: SummaryRequest):
         }
     """
     try:
-        logger.info("Received summary request")
-        response = await nova_ai.summarize_text(request.text)
+        logger.info(f"Summary request - Text: {request.text[:50]}...")
+        summary = await ai_service.summarize_text(request.text)
         logger.info("Successfully generated summary")
-        return SummaryResponse(**response)
+        return SummaryResponse(summary=summary)
     except Exception as e:
         logger.error(f"Error in summary endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) 
