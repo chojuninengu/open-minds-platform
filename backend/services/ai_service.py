@@ -1,6 +1,6 @@
 import os
 import httpx
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 from dotenv import load_dotenv
 import json
@@ -22,10 +22,10 @@ class AIService:
             raise ValueError("GROQ_API_KEY environment variable is not set")
             
         self.api_url = "https://api.groq.com/openai/v1"
-        self.default_model = "meta-llama/llama-4-scout-17b-16e-instruct"
+        self.model = "meta-llama/llama-4-scout-17b-16e-instruct"
         
         logger.info(f"Initializing AI Service with URL: {self.api_url}")
-        logger.info(f"Using default model: {self.default_model}")
+        logger.info(f"Using model: {self.model}")
             
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -36,11 +36,10 @@ class AIService:
     async def _make_request(
         self,
         prompt: str,
-        model: Optional[str] = None,
-        system_message: Optional[str] = None,
+        system_message: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 2000
-    ) -> Dict[Any, Any]:
+    ) -> Dict[str, Any]:
         """Make a request to the AI API."""
         try:
             messages = []
@@ -49,14 +48,13 @@ class AIService:
             messages.append({"role": "user", "content": prompt})
             
             request_data = {
-                "model": model or self.default_model,
+                "model": self.model,
                 "messages": messages,
                 "temperature": temperature,
                 "max_tokens": max_tokens
             }
             
             endpoint = f"{self.api_url}/chat/completions"
-            logger.info(f"Making request to model: {model or self.default_model}")
             logger.info(f"Request data: {json.dumps(request_data, indent=2)}")
             
             async with httpx.AsyncClient() as client:
@@ -95,11 +93,7 @@ class AIService:
             logger.error(f"Error making AI request: {str(e)}")
             raise
 
-    async def get_chat_response(
-        self,
-        message: str,
-        model: Optional[str] = None
-    ) -> Dict[str, str]:
+    async def get_chat_response(self, message: str) -> Dict[str, str]:
         """Get a chat response from the AI."""
         system_message = """You are Nova, an AI learning assistant for students.
         You explain concepts clearly and provide helpful examples.
@@ -110,7 +104,6 @@ class AIService:
         try:
             response = await self._make_request(
                 prompt=message,
-                model=model,
                 system_message=system_message
             )
             
@@ -119,26 +112,19 @@ class AIService:
                 raise Exception("Invalid response format from AI service")
             
             return {
-                "response": response["choices"][0]["message"]["content"].strip(),
-                "model": model or self.default_model
+                "response": response["choices"][0]["message"]["content"].strip()
             }
         except Exception as e:
             logger.error(f"Error getting chat response: {str(e)}")
             raise
 
-    async def translate_text(
-        self,
-        text: str,
-        target_language: str,
-        model: Optional[str] = None
-    ) -> Dict[str, str]:
+    async def translate_text(self, text: str, target_language: str) -> Dict[str, str]:
         """Translate text using the AI."""
         prompt = f"Translate the following text to {target_language}. Only respond with the translation, no explanations:\n\n{text}"
         
         try:
             response = await self._make_request(
                 prompt=prompt,
-                model=model,
                 temperature=0.3  # Lower temperature for more consistent translations
             )
             
@@ -147,25 +133,19 @@ class AIService:
                 raise Exception("Invalid response format from AI service")
             
             return {
-                "translated": response["choices"][0]["message"]["content"].strip(),
-                "model": model or self.default_model
+                "translated": response["choices"][0]["message"]["content"].strip()
             }
         except Exception as e:
             logger.error(f"Error translating text: {str(e)}")
             raise
 
-    async def summarize_text(
-        self,
-        text: str,
-        model: Optional[str] = None
-    ) -> Dict[str, str]:
+    async def summarize_text(self, text: str) -> Dict[str, str]:
         """Summarize text using the AI."""
         prompt = f"Summarize the following text concisely. Only provide the summary, no explanations:\n\n{text}"
         
         try:
             response = await self._make_request(
                 prompt=prompt,
-                model=model,
                 temperature=0.3  # Lower temperature for more consistent summaries
             )
             
@@ -174,8 +154,7 @@ class AIService:
                 raise Exception("Invalid response format from AI service")
             
             return {
-                "summary": response["choices"][0]["message"]["content"].strip(),
-                "model": model or self.default_model
+                "summary": response["choices"][0]["message"]["content"].strip()
             }
         except Exception as e:
             logger.error(f"Error summarizing text: {str(e)}")
