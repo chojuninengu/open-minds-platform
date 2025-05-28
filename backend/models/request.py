@@ -12,38 +12,20 @@ class NovaModel(str, Enum):
     CODER_EXERCISES = "coder-exercises"
 
 class ChatRequest(BaseModel):
-    """Request model for the chat endpoint.
-    
-    Example:
-        {
-            "message": "Explain recursion",
-            "model": "coder"
-        }
-    """
-    message: str = Field(..., description="The user's message or question")
-    model: Optional[NovaModel] = Field(
-        default=NovaModel.CODING_TEACHER,
-        description="The AI model to use for the response"
+    """Request model for the chat endpoint."""
+    message: str = Field(..., description="The user's message")
+    model: Optional[str] = Field(
+        default="coding-teacher",
+        description="The AI model to use"
     )
 
 class TranslateRequest(BaseModel):
-    """Request model for the translation endpoint.
-    
-    Example:
-        {
-            "text": "Hola mundo",
-            "target_language": "en"
-        }
-    """
+    """Request model for the translate endpoint."""
     text: str = Field(..., description="Text to translate")
-    target_language: str = Field(..., description="Target language code (e.g., 'fr', 'es')")
+    target_language: str = Field(..., description="Target language")
+    model: Optional[str] = None
 
 class SummaryRequest(BaseModel):
-    """Request model for the summarization endpoint.
-    
-    Example:
-        {
-            "text": "Very long document text..."
-        }
-    """
-    text: str = Field(..., description="Text to summarize") 
+    """Request model for the summary endpoint."""
+    text: str = Field(..., description="Text to summarize")
+    model: Optional[str] = None 
