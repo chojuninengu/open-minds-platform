@@ -157,20 +157,33 @@ class AIService:
             logger.error(f"Error translating text: {str(e)}")
             raise
 
-    async def summarize_text(self, text: str) -> str:
+    async def summarize_text(
+        self,
+        text: str,
+        model: Optional[str] = None
+    ) -> Dict[str, str]:
         """Summarize text using the AI.
         
         Args:
-            text: Text to summarize.
+            text: Text to summarize
+            model: Optional model override
             
         Returns:
-            Summarized text.
+            Dict with summary and model used
         """
         prompt = f"Summarize the following text concisely. Only provide the summary, no explanations:\n\n{text}"
         
         try:
-            response = await self._make_request(prompt)
-            return response["choices"][0]["message"]["content"]
+            response = await self._make_request(
+                prompt=prompt,
+                model=model,
+                temperature=0.3  # Lower temperature for more consistent summaries
+            )
+            
+            return {
+                "summary": response["choices"][0]["message"]["content"].strip(),
+                "model": model or self.default_model
+            }
         except Exception as e:
             logger.error(f"Error summarizing text: {str(e)}")
             raise
