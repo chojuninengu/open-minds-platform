@@ -20,11 +20,14 @@ class AIService:
         if not self.api_key:
             raise ValueError("GROQ_API_KEY environment variable is not set")
         
+        logger.info(f"API Key loaded: {self.api_key[:10]}...")
+        
         self.base_url = "https://api.groq.com/openai/v1"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
+        logger.info(f"Headers configured: {json.dumps(self.headers)}")
         logger.info("Initialized Groq AI Service")
 
     async def get_response(self, message: str) -> str:
@@ -48,20 +51,24 @@ class AIService:
                     "content": message
                 })
 
-                # Make request with exact format
+                request_data = {
+                    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+                    "messages": messages
+                }
+
+                logger.info(f"Making request to: {self.base_url}/chat/completions")
+                logger.info(f"Request headers: {json.dumps(self.headers)}")
+                logger.info(f"Request data: {json.dumps(request_data)}")
+
                 response = await client.post(
                     f"{self.base_url}/chat/completions",
                     headers=self.headers,
-                    json={
-                        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-                        "messages": messages
-                    }
+                    json=request_data,
+                    timeout=30.0
                 )
                 
-                # Log the request and response for debugging
-                logger.info(f"Request URL: {self.base_url}/chat/completions")
-                logger.info(f"Request headers: {self.headers}")
-                logger.info(f"Request body: {json.dumps({'model': 'meta-llama/llama-4-scout-17b-16e-instruct', 'messages': messages})}")
+                logger.info(f"Response status: {response.status_code}")
+                logger.info(f"Response headers: {dict(response.headers)}")
                 
                 response.raise_for_status()
                 data = response.json()
@@ -70,6 +77,7 @@ class AIService:
                 return data['choices'][0]['message']['content']
         except Exception as e:
             logger.error(f"Error in AI service: {str(e)}")
+            logger.error(f"Error details: {type(e).__name__}")
             raise
 
 # Create a singleton instance
