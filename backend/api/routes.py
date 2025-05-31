@@ -4,6 +4,7 @@ from backend.models.response import ChatResponse, TranslateResponse, SummaryResp
 from backend.services.ai_service import ai_service
 import logging
 from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -14,8 +15,23 @@ router = APIRouter(prefix="/api/nova")
 class ChatRequest(BaseModel):
     message: str
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatChoice(BaseModel):
+    index: int
+    message: ChatMessage
+    logprobs: Optional[Any] = None
+    finish_reason: str
+
 class ChatResponse(BaseModel):
-    response: str
+    id: str
+    object: str
+    created: int
+    model: str
+    choices: List[ChatChoice]
+    usage: Dict[str, Any]
 
 @router.get("/", response_model=HealthResponse)
 async def health_check():
@@ -26,7 +42,7 @@ async def health_check():
         logger.error(f"Error in health check endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/chat")  # Remove response_model to pass through raw response
 async def chat(request: ChatRequest):
     """Chat endpoint for getting AI responses.
     
@@ -44,7 +60,7 @@ async def chat(request: ChatRequest):
             
         response = await ai_service.get_response(request.message)
         logger.info("Successfully generated chat response")
-        return ChatResponse(response=response)
+        return response  # Return raw response from Groq
     except HTTPException:
         raise
     except Exception as e:
