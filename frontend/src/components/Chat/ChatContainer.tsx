@@ -26,6 +26,8 @@ const ChatContainer: React.FC = () => {
   };
 
   const handleSendMessage = async (content: string) => {
+    if (!content.trim()) return;
+    
     const userMessage: Message = {
       id: Date.now(),
       content,
@@ -85,8 +87,8 @@ const ChatContainer: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#343541] p-4">
-        <div className="max-w-3xl mx-auto">
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#343541]">
+        <div className="max-w-3xl mx-auto px-4 py-4">
           <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </div>
       </div>
