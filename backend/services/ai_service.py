@@ -74,7 +74,7 @@ class AIService:
                 data = response.json()
                 logger.info(f"Response data: {data}")
                 
-                return data['choices'][0]['message']['content']
+                return data  # Return the full response
         except Exception as e:
             logger.error(f"Error in AI service: {str(e)}")
             logger.error(f"Error details: {type(e).__name__}")
