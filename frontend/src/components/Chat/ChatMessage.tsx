@@ -1,51 +1,54 @@
-import { FC } from 'react';
+import React from 'react';
+import { Message } from '../../types';
 import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface ChatMessageProps {
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: number;
-  status: 'sending' | 'sent' | 'error';
-  error?: string;
+  message: Message;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ text, sender, timestamp, status, error }) => {
-  const isAI = sender === 'ai';
-  const formattedTime = new Date(timestamp).toLocaleTimeString();
-
-  const getStatusColor = () => {
-    switch (status) {
-      case 'sending':
-        return 'text-yellow-500';
-      case 'sent':
-        return 'text-green-500';
-      case 'error':
-        return 'text-red-500';
-      default:
-        return 'text-gray-500';
-    }
-  };
+export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+  const isUser = message.role === 'user';
 
   return (
-    <div className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`max-w-[80%] rounded-lg p-4 ${
-          isAI
-            ? 'bg-blue-100 dark:bg-blue-900 text-gray-900 dark:text-gray-100'
-            : 'bg-green-100 dark:bg-green-900 text-gray-900 dark:text-gray-100'
+          isUser
+            ? 'bg-blue-500 text-white'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
         }`}
       >
-        <div className="prose dark:prose-invert max-w-none">
-          <ReactMarkdown>{text}</ReactMarkdown>
-        </div>
-        <div className="flex items-center gap-2 mt-2 text-xs">
-          <span className={getStatusColor()}>
-            {status === 'sending' ? '⏳' : status === 'sent' ? '✓' : '⚠️'}
-          </span>
-          <span className="text-gray-600 dark:text-gray-400">{formattedTime}</span>
-          {error && (
-            <span className="text-red-500 dark:text-red-400">{error}</span>
-          )}
+        <ReactMarkdown
+          components={{
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '');
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  style={atomDark}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            },
+          }}
+        >
+          {message.content}
+        </ReactMarkdown>
+        <div
+          className={`text-xs mt-1 ${
+            isUser ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'
+          }`}
+        >
+          {new Date(message.timestamp).toLocaleTimeString()}
         </div>
       </div>
     </div>
