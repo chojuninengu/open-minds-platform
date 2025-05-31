@@ -52,36 +52,40 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({ content, isAI = fals
   return (
     <div className={`w-full ${isAI ? 'bg-gray-50 dark:bg-[#444654]' : 'bg-white dark:bg-[#343541]'}`}>
       <div className="max-w-3xl mx-auto px-4 py-6 flex gap-4 md:gap-6 lg:px-8">
-        <div className="flex-shrink-0 select-none">
-          {isAI ? (
+        {isAI && (
+          <div className="flex-shrink-0 select-none">
             <div className="w-8 h-8 rounded flex items-center justify-center bg-[#19c37d] text-white">
               AI
             </div>
-          ) : (
-            <div className="w-8 h-8 rounded bg-[#5436DA] text-white flex items-center justify-center">
-              <UserCircleIcon className="w-6 h-6" />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         
-        <div className="min-w-0 flex-1 space-y-3">
-          <div className="prose dark:prose-invert prose-sm sm:prose-base max-w-none">
+        <div className={`min-w-0 flex-1 space-y-3 ${!isAI ? 'flex justify-end' : ''}`}>
+          <div className={`prose dark:prose-invert prose-sm sm:prose-base max-w-none ${!isAI ? 'flex flex-col items-end' : ''}`}>
             {contentParts.map((part, index) => {
               if (part.type === 'code') {
                 return (
-                  <div key={index} className="my-4">
+                  <div key={index} className="my-4 w-full">
                     <CodeBlock code={part.content} language={part.language} />
                   </div>
                 );
               }
               return (
-                <p key={index} className="whitespace-pre-wrap text-gray-800 dark:text-gray-100">
+                <div key={index} className={`whitespace-pre-wrap text-gray-800 dark:text-gray-100 ${!isAI ? 'text-right' : ''} w-full`}>
                   {part.content}
-                </p>
+                </div>
               );
             })}
           </div>
         </div>
+
+        {!isAI && (
+          <div className="flex-shrink-0 select-none">
+            <div className="w-8 h-8 rounded bg-[#5436DA] text-white flex items-center justify-center">
+              <UserCircleIcon className="w-6 h-6" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
