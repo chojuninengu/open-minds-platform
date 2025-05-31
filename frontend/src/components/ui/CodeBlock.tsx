@@ -16,9 +16,14 @@ import 'prismjs/components/prism-markdown';
 interface CodeBlockProps {
   code: string;
   language?: string;
+  align?: 'left' | 'right';
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'plaintext' }) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({ 
+  code, 
+  language = 'plaintext',
+  align = 'left'
+}) => {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
@@ -58,7 +63,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'plaintex
   const prismLanguage = getLanguageIdentifier(language);
 
   return (
-    <div className="relative group rounded-md bg-[#1e1e1e] dark:bg-[#1a1b26]">
+    <div className={`relative group rounded-md bg-[#1e1e1e] dark:bg-[#1a1b26] ${align === 'right' ? 'text-left' : ''}`}>
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700/50">
         <span className="text-xs text-gray-300">{displayLanguage}</span>
         <button
