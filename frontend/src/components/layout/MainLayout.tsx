@@ -16,14 +16,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="h-screen flex dark:bg-gray-800">
+    <div className="h-screen flex bg-white dark:bg-[#343541]">
       <Sidebar isOpen={isSidebarOpen} />
       <div className={`flex-1 flex flex-col transition-all duration-200 ease-in-out ${isSidebarOpen ? 'ml-[260px]' : 'ml-0'}`}>
         <Header onMenuClick={toggleSidebar} />
-        <main className="flex-1 relative overflow-auto bg-white dark:bg-[#343541]">
-          <div className="max-w-3xl mx-auto px-4 py-8">
-            {children}
-          </div>
+        <main className="flex-1 relative overflow-auto">
+          {children}
         </main>
       </div>
     </div>
