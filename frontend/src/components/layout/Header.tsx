@@ -1,33 +1,27 @@
 import React from 'react';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 import { useTheme } from '../../context/ThemeContext';
-import { SunIcon, MoonIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 interface HeaderProps {
-  onMenuClick: () => void;
+  onToggleSidebar: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
-    <header className="border-b border-gray-200 dark:border-gray-700/50">
-      <div className="flex items-center justify-between h-12 px-4">
+    <header className="h-14 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#343541]">
+      <div className="h-full px-4 flex items-center justify-between">
         <button
-          onClick={onMenuClick}
-          className="p-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-md"
+          onClick={onToggleSidebar}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
         >
-          <Bars3Icon className="h-5 w-5" />
+          <Bars3Icon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
         </button>
-        <button
-          onClick={toggleTheme}
-          className="p-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-md"
-        >
-          {isDarkMode ? (
-            <SunIcon className="h-5 w-5" />
-          ) : (
-            <MoonIcon className="h-5 w-5" />
-          )}
-        </button>
+        <div className="flex items-center space-x-4">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
