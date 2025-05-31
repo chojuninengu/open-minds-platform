@@ -3,6 +3,7 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { Message } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
+import { MessageBlock } from './MessageBlock';
 
 const ChatContainer: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -85,7 +86,11 @@ const ChatContainer: React.FC = () => {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
+          <MessageBlock
+            key={message.id}
+            content={message.content}
+            isAI={message.role === 'assistant'}
+          />
         ))}
         <div ref={messagesEndRef} />
       </div>
