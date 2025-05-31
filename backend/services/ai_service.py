@@ -31,29 +31,42 @@ class AIService:
         """Get a response from Groq AI."""
         try:
             async with httpx.AsyncClient() as client:
+                # Prepare messages array
+                messages = []
+                # Add system message if needed
+                messages.append({
+                    "role": "system",
+                    "content": """You are Nova, an AI learning assistant for students.
+                    You explain concepts clearly and provide helpful examples.
+                    If asked about programming, always include code examples.
+                    Keep responses concise but informative.
+                    Be friendly and encouraging."""
+                })
+                # Add user message
+                messages.append({
+                    "role": "user",
+                    "content": message
+                })
+
+                # Make request with exact format
                 response = await client.post(
                     f"{self.base_url}/chat/completions",
                     headers=self.headers,
                     json={
                         "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-                        "messages": [
-                            {
-                                "role": "system",
-                                "content": """You are Nova, an AI learning assistant for students.
-                                You explain concepts clearly and provide helpful examples.
-                                If asked about programming, always include code examples.
-                                Keep responses concise but informative.
-                                Be friendly and encouraging."""
-                            },
-                            {
-                                "role": "user",
-                                "content": message
-                            }
-                        ]
+                        "messages": messages
                     }
                 )
+                
+                # Log the request and response for debugging
+                logger.info(f"Request URL: {self.base_url}/chat/completions")
+                logger.info(f"Request headers: {self.headers}")
+                logger.info(f"Request body: {json.dumps({'model': 'meta-llama/llama-4-scout-17b-16e-instruct', 'messages': messages})}")
+                
                 response.raise_for_status()
                 data = response.json()
+                logger.info(f"Response data: {data}")
+                
                 return data['choices'][0]['message']['content']
         except Exception as e:
             logger.error(f"Error in AI service: {str(e)}")
