@@ -66,7 +66,11 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({ content, isAI = fals
               if (part.type === 'code') {
                 return (
                   <div key={index} className="my-4 w-full">
-                    <CodeBlock code={part.content} language={part.language} />
+                    <CodeBlock 
+                      code={part.content} 
+                      language={part.language}
+                      align={isAI ? 'left' : 'right'}
+                    />
                   </div>
                 );
               }
