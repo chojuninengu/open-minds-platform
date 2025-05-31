@@ -49,9 +49,9 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({ content, isAI = fals
   const contentParts = parseContent(content);
 
   return (
-    <div className={`py-6 ${isAI ? 'bg-gray-50 dark:bg-[#444654]' : ''}`}>
+    <div className={`py-6 ${isAI ? 'bg-gray-50 dark:bg-[#444654]' : 'bg-white dark:bg-[#343541]'}`}>
       <div className="max-w-3xl mx-auto px-4">
-        <div className="prose dark:prose-invert max-w-none">
+        <div className="prose dark:prose-invert prose-sm sm:prose-base max-w-none">
           {contentParts.map((part, index) => {
             if (part.type === 'code') {
               return (
@@ -61,7 +61,7 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({ content, isAI = fals
               );
             }
             return (
-              <p key={index} className="whitespace-pre-wrap">
+              <p key={index} className="whitespace-pre-wrap text-gray-800 dark:text-gray-100">
                 {part.content}
               </p>
             );
