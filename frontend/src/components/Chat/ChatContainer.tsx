@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { Message } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,15 +7,15 @@ import { MessageBlock } from './MessageBlock';
 const ChatContainer: React.FC = () => {
   const { isDarkMode } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const savedMessages = localStorage.getItem('chatMessages');
-    return savedMessages ? JSON.parse(savedMessages) : [];
-  });
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      content: "Hello! I'm your AI assistant. How can I help you today?",
+      role: 'assistant',
+      timestamp: new Date().toISOString(),
+    }
+  ]);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
-  }, [messages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -47,17 +46,10 @@ const ChatContainer: React.FC = () => {
       });
 
       if (!response.ok) {
-        console.error('Response not OK:', response.status, response.statusText);
         throw new Error('Failed to get response');
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
-
-      if (!data?.choices?.[0]?.message?.content) {
-        console.error('Invalid response structure:', data);
-        throw new Error('Invalid response structure');
-      }
 
       const assistantMessage: Message = {
         id: Date.now() + 1,
@@ -66,7 +58,6 @@ const ChatContainer: React.FC = () => {
         timestamp: new Date().toISOString(),
       };
 
-      console.log('Assistant Message:', assistantMessage);
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
@@ -83,8 +74,8 @@ const ChatContainer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full bg-white dark:bg-[#343541]">
+      <div className="flex-1 overflow-y-auto">
         {messages.map((message) => (
           <MessageBlock
             key={message.id}
@@ -94,8 +85,10 @@ const ChatContainer: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#343541] p-4">
+        <div className="max-w-3xl mx-auto">
+          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        </div>
       </div>
     </div>
   );
