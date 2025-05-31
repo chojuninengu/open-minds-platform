@@ -1,5 +1,6 @@
 import React from 'react';
 import { CodeBlock } from '../ui/CodeBlock';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
 
 interface MessageBlockProps {
   content: string;
@@ -49,23 +50,37 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({ content, isAI = fals
   const contentParts = parseContent(content);
 
   return (
-    <div className={`py-6 ${isAI ? 'bg-gray-50 dark:bg-[#444654]' : 'bg-white dark:bg-[#343541]'}`}>
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="prose dark:prose-invert prose-sm sm:prose-base max-w-none">
-          {contentParts.map((part, index) => {
-            if (part.type === 'code') {
+    <div className={`w-full ${isAI ? 'bg-gray-50 dark:bg-[#444654]' : 'bg-white dark:bg-[#343541]'}`}>
+      <div className="max-w-3xl mx-auto px-4 py-6 flex gap-4 md:gap-6 lg:px-8">
+        <div className="flex-shrink-0 select-none">
+          {isAI ? (
+            <div className="w-8 h-8 rounded flex items-center justify-center bg-[#19c37d] text-white">
+              AI
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded bg-[#5436DA] text-white flex items-center justify-center">
+              <UserCircleIcon className="w-6 h-6" />
+            </div>
+          )}
+        </div>
+        
+        <div className="min-w-0 flex-1 space-y-3">
+          <div className="prose dark:prose-invert prose-sm sm:prose-base max-w-none">
+            {contentParts.map((part, index) => {
+              if (part.type === 'code') {
+                return (
+                  <div key={index} className="my-4">
+                    <CodeBlock code={part.content} language={part.language} />
+                  </div>
+                );
+              }
               return (
-                <div key={index} className="my-4">
-                  <CodeBlock code={part.content} language={part.language} />
-                </div>
+                <p key={index} className="whitespace-pre-wrap text-gray-800 dark:text-gray-100">
+                  {part.content}
+                </p>
               );
-            }
-            return (
-              <p key={index} className="whitespace-pre-wrap text-gray-800 dark:text-gray-100">
-                {part.content}
-              </p>
-            );
-          })}
+            })}
+          </div>
         </div>
       </div>
     </div>
