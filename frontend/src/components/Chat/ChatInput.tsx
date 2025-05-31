@@ -1,19 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading = false }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
     }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
   }, [message]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,30 +39,32 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      <textarea
-        ref={textareaRef}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Message Open Minds..."
-        className="w-full p-4 pr-12 resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[56px] max-h-[200px]"
-        rows={1}
-        disabled={isLoading}
-      />
-      <button
-        type="submit"
-        disabled={!message.trim() || isLoading}
-        className="absolute right-2 bottom-2 p-2 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="w-6 h-6"
+      <div className="relative flex items-end w-full bg-white dark:bg-[#40414f] rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[0_0_15px_rgba(0,0,0,0.3)]">
+        <textarea
+          ref={textareaRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Send a message..."
+          rows={1}
+          className="w-full resize-none bg-transparent py-3 pl-4 pr-12 text-base focus:outline-none dark:text-white"
+          style={{ maxHeight: '200px' }}
+        />
+        <button
+          type="submit"
+          disabled={!message.trim() || isLoading}
+          className={`absolute right-2 bottom-2.5 p-1 rounded-lg ${
+            message.trim() && !isLoading
+              ? 'bg-[#19c37d] hover:bg-[#1a8870] text-white'
+              : 'bg-gray-300 dark:bg-gray-600 text-gray-400 dark:text-gray-300 cursor-not-allowed'
+          }`}
         >
-          <path d="M3.478 2.404a.75.75 0 00-.926.941l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.404z" />
-        </svg>
-      </button>
+          <PaperAirplaneIcon className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
+        {isLoading ? 'AI is thinking...' : 'Press Enter to send, Shift + Enter for new line'}
+      </div>
     </form>
   );
 }; 
