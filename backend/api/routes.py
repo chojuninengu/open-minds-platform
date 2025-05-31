@@ -42,7 +42,7 @@ async def health_check():
         logger.error(f"Error in health check endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/chat")  # Remove response_model to pass through raw response
+@router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Chat endpoint for getting AI responses.
     
@@ -60,7 +60,7 @@ async def chat(request: ChatRequest):
             
         response = await ai_service.get_response(request.message)
         logger.info("Successfully generated chat response")
-        return response  # Return raw response from Groq
+        return response  # Return the raw Groq API response
     except HTTPException:
         raise
     except Exception as e:
