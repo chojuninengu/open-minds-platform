@@ -46,16 +46,26 @@ const ChatContainer: React.FC = () => {
       });
 
       if (!response.ok) {
+        console.error('Response not OK:', response.status, response.statusText);
         throw new Error('Failed to get response');
       }
 
       const data = await response.json();
+      console.log('API Response:', data);
+
+      if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error('Invalid response structure:', data);
+        throw new Error('Invalid response structure');
+      }
+
       const assistantMessage: Message = {
         id: Date.now() + 1,
         content: data.choices[0].message.content,
         role: 'assistant',
         timestamp: new Date().toISOString(),
       };
+
+      console.log('Assistant Message:', assistantMessage);
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
