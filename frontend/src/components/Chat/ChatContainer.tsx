@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatInput } from './ChatInput';
 import { Message } from '../../types';
-import { useTheme } from '../../context/ThemeContext';
 import { MessageBlock } from './MessageBlock';
 
 const ChatContainer: React.FC = () => {
-  const { isDarkMode } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
