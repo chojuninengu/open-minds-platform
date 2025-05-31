@@ -13,11 +13,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.role === 'user';
 
   const components: Components = {
-    code({ className, children, ...props }) {
+    code({ className, children }) {
       const match = /language-(\w+)/.exec(className || '');
       return match ? (
         <SyntaxHighlighter
-          {...props}
           style={oneDark}
           language={match[1]}
           PreTag="div"
@@ -25,7 +24,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       ) : (
-        <code className={className} {...props}>
+        <code className={className}>
           {children}
         </code>
       );
