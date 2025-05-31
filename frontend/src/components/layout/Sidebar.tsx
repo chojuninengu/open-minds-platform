@@ -35,31 +35,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 transform ${
+      className={`fixed inset-y-0 left-0 w-[260px] bg-[#202123] transform ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
-      } w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-transform duration-200 ease-in-out z-30 shadow-lg`}
+      } transition-transform duration-200 ease-in-out z-30 flex flex-col`}
     >
-      <nav className="mt-16 px-4">
-        <ul className="space-y-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                    isActive ? 'bg-gray-100 dark:bg-gray-700' : ''
-                  }`}
-                >
-                  <Icon className="h-6 w-6 mr-3" />
-                  <span>{item.name}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-2">
+          <Link
+            to="/chat"
+            className="flex items-center gap-3 rounded-md px-3 py-3 text-white hover:bg-gray-700 transition-colors duration-200"
+          >
+            <span className="flex-shrink-0">
+              <ChatBubbleLeftIcon className="h-5 w-5" />
+            </span>
+            <span className="text-sm">New Chat</span>
+          </Link>
+        </div>
+        
+        <nav className="px-2">
+          <ul className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm text-gray-300 hover:bg-gray-700 transition-colors duration-200 ${
+                      isActive ? 'bg-gray-700' : ''
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </div>
     </aside>
   );
 }; 
