@@ -1,6 +1,5 @@
 import React from 'react';
 import { Bars3Icon } from '@heroicons/react/24/outline';
-import { useTheme } from '../../context/ThemeContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
 interface HeaderProps {
@@ -8,8 +7,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
-  const { isDarkMode, toggleTheme } = useTheme();
-
   return (
     <header className="h-14 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#343541]">
       <div className="h-full px-4 flex items-center justify-between">
