@@ -52,7 +52,7 @@ const ChatContainer: React.FC = () => {
       const data = await response.json();
       const assistantMessage: Message = {
         id: Date.now() + 1,
-        content: data.response,
+        content: data.choices[0].message.content,
         role: 'assistant',
         timestamp: new Date().toISOString(),
       };
