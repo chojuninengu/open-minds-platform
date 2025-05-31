@@ -176,3 +176,37 @@ git push origin main
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Environment Setup
+
+1. Backend Environment
+   - Copy `.env.example` to `.env` in the `backend` directory
+   - Add your Groq API key to `.env`
+   - Never commit `.env` files to version control
+   - Example:
+     ```
+     GROQ_API_KEY=your_groq_api_key_here
+     ```
+
+## Development
+
+1. Backend Setup
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   python main.py
+   ```
+
+2. Frontend Setup
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+## Security Notes
+
+- Never commit API keys or sensitive credentials to version control
+- Always use environment variables for sensitive data
+- Keep `.env` files local and secure
+- Share `.env.example` files to document required environment variables
