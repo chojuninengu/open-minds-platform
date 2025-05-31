@@ -5,10 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: false, // Prevent auto-opening browser
-    port: 5174, // Use consistent port
+    port: 5174,
   },
-  base: '/open-minds-platform/', // Add base URL for GitHub Pages
+  base: '/open-minds-platform/',
   build: {
     outDir: 'dist',
     sourcemap: true,
