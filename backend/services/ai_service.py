@@ -4,6 +4,7 @@ from typing import Dict, Any
 import logging
 from dotenv import load_dotenv
 import json
+from anthropic import Anthropic
 
 # Load environment variables
 load_dotenv()
@@ -17,10 +18,11 @@ class AIService:
     
     def __init__(self):
         """Initialize the AI service with configuration from environment variables."""
-# self.api_key = os.getenv("GROQ_API_KEY", "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") 
+        self.api_key = os.getenv('CLAUDE_API_KEY')
         if not self.api_key:
-            raise ValueError("GROQ_API_KEY environment variable is not set")
-            
+            raise ValueError("CLAUDE_API_KEY environment variable is not set")
+        
+        self.client = Anthropic(api_key=self.api_key)
         self.api_url = "https://api.groq.com/openai/v1"
         self.model = "meta-llama/llama-4-scout-17b-16e-instruct"
         
@@ -158,6 +160,18 @@ class AIService:
             }
         except Exception as e:
             logger.error(f"Error summarizing text: {str(e)}")
+            raise
+
+    async def get_response(self, message: str) -> str:
+        try:
+            response = await self.client.messages.create(
+                model="claude-3-opus-20240229",
+                max_tokens=1024,
+                messages=[{"role": "user", "content": message}]
+            )
+            return response.content[0].text
+        except Exception as e:
+            print(f"Error in AI service: {str(e)}")
             raise
 
 # Create a singleton instance
