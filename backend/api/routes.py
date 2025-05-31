@@ -3,12 +3,19 @@ from backend.models.request import ChatRequest, TranslateRequest, SummaryRequest
 from backend.models.response import ChatResponse, TranslateResponse, SummaryResponse, HealthResponse
 from backend.services.ai_service import ai_service
 import logging
+from pydantic import BaseModel
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Create router with prefix
 router = APIRouter(prefix="/api/nova")
+
+class ChatRequest(BaseModel):
+    message: str
+
+class ChatResponse(BaseModel):
+    response: str
 
 @router.get("/", response_model=HealthResponse)
 async def health_check():
@@ -19,12 +26,12 @@ async def health_check():
         logger.error(f"Error in health check endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/ask", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Chat endpoint for getting AI responses.
     
     Example request:
-        POST /api/nova/ask
+        POST /api/nova/chat
         {
             "message": "Explain recursion"
         }
@@ -35,9 +42,9 @@ async def chat(request: ChatRequest):
         if not request.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
             
-        response = await ai_service.get_chat_response(request.message)
+        response = await ai_service.get_response(request.message)
         logger.info("Successfully generated chat response")
-        return ChatResponse(**response)
+        return ChatResponse(response=response)
     except HTTPException:
         raise
     except Exception as e:
