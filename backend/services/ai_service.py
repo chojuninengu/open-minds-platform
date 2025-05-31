@@ -24,7 +24,7 @@ class AIService:
         
         self.base_url = "https://api.groq.com/openai/v1"
         self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "Authorization": self.api_key,
             "Content-Type": "application/json"
         }
         logger.info(f"Headers configured: {json.dumps(self.headers)}")
