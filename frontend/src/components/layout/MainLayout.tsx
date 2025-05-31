@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { useTheme } from '../../context/ThemeContext';
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const { isDarkMode } = useTheme();
+export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -16,11 +10,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="h-screen flex bg-white dark:bg-[#343541]">
+    <div className="flex h-screen bg-gray-100 dark:bg-[#1a1b26]">
       <Sidebar isOpen={isSidebarOpen} />
-      <div className={`flex-1 flex flex-col transition-all duration-200 ease-in-out ${isSidebarOpen ? 'ml-[260px]' : 'ml-0'}`}>
-        <Header onMenuClick={toggleSidebar} />
-        <main className="flex-1 relative overflow-auto">
+      <div className="flex flex-col flex-1">
+        <Header onToggleSidebar={toggleSidebar} />
+        <main className="flex-1 overflow-hidden">
           {children}
         </main>
       </div>
