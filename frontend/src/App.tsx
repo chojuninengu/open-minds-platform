@@ -5,13 +5,17 @@ import { MainLayout } from './components/layout/MainLayout';
 import ChatContainer from './components/Chat/ChatContainer';
 
 const App: React.FC = () => {
+  // Get the base URL from Vite's environment
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <ThemeProvider>
-      <Router basename="/open-minds-platform">
+      <Router basename={baseUrl}>
         <MainLayout>
           <Routes>
             <Route path="/chat" element={<ChatContainer />} />
             <Route path="/" element={<Navigate to="/chat" replace />} />
+            <Route path="*" element={<Navigate to="/chat" replace />} />
           </Routes>
         </MainLayout>
       </Router>
