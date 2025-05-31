@@ -13,21 +13,22 @@ const ChatContainer: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
-  }, [messages]);
-
-  const handleSendMessage = async (message: string) => {
-    if (!message.trim()) return;
-
+  const handleSendMessage = async (content: string) => {
     const userMessage: Message = {
       id: Date.now(),
-      content: message,
+      content,
       role: 'user',
       timestamp: new Date().toISOString(),
     };
@@ -41,54 +42,46 @@ const ChatContainer: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: content }),
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
       const data = await response.json();
-      const aiMessage: Message = {
+      const assistantMessage: Message = {
         id: Date.now() + 1,
         content: data.response,
         role: 'assistant',
         timestamp: new Date().toISOString(),
       };
 
-      setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error:', error);
+      const errorMessage: Message = {
+        id: Date.now() + 1,
+        content: 'Sorry, I encountered an error. Please try again.',
+        role: 'assistant',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-gray-800">
-      {/* Main chat area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-3xl mx-auto">
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          {isLoading && (
-            <div className="flex items-center justify-center py-4">
-              <div className="animate-pulse flex space-x-4">
-                <div className="h-2 w-2 bg-gray-400 rounded-full"></div>
-                <div className="h-2 w-2 bg-gray-400 rounded-full"></div>
-                <div className="h-2 w-2 bg-gray-400 rounded-full"></div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
+        <div ref={messagesEndRef} />
       </div>
-
-      {/* Input area */}
-      <div className="border-t dark:border-gray-700">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
-          <div className="text-center mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Open Minds Platform may produce inaccurate information. Consider checking important information.
-          </div>
-        </div>
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </div>
     </div>
   );
