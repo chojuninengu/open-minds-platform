@@ -20,12 +20,12 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'plaintex
   };
 
   return (
-    <div className="relative group rounded-md bg-gray-800 dark:bg-[#1a1b26]">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-        <span className="text-xs text-gray-400">{language}</span>
+    <div className="relative group rounded-md bg-[#1e1e1e] dark:bg-[#1a1b26]">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700/50">
+        <span className="text-xs text-gray-300">{language}</span>
         <button
           onClick={copyToClipboard}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-300 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white transition-colors"
         >
           {isCopied ? (
             <>
@@ -41,7 +41,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'plaintex
         </button>
       </div>
       <pre className="p-4 overflow-x-auto">
-        <code className="text-sm text-gray-300 font-mono">{code}</code>
+        <code className="text-sm text-gray-100 font-mono">{code}</code>
       </pre>
     </div>
   );
