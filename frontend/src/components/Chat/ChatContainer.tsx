@@ -53,7 +53,7 @@ const ChatContainer: React.FC = () => {
       const data = await response.json();
       console.log('API Response:', data);
 
-      if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+      if (!data?.choices?.[0]?.message?.content) {
         console.error('Invalid response structure:', data);
         throw new Error('Invalid response structure');
       }
@@ -66,7 +66,6 @@ const ChatContainer: React.FC = () => {
       };
 
       console.log('Assistant Message:', assistantMessage);
-
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
