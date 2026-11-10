@@ -58,9 +58,9 @@ jobs:
           # Record update in an activity file
           mkdir -p .automation
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | $TIMESTAMP" >> .automation/activity.log
+          echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | $TIMESTAMP" >> .automation/activity.md
 
-          git add .automation/activity.log
+          git add .automation/activity.md
           # Commit authored by chojuninengu; [skip ci] prevents triggering secondary build workflows
           git commit -m "feat(automation): update activity log for #${ISSUE_NUM} [skip ci]"
           git push origin "$BRANCH_NAME"
