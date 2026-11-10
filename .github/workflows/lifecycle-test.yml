@@ -1,12 +1,19 @@
 name: Educational Lifecycle Test (Issue -> PR -> Merge -> Cleanup)
 
 on:
+  schedule:
+    - cron: '0 6,14,22 * * *'  # Runs 3 times a day (06:00, 14:00, 22:00 UTC)
   workflow_dispatch:
     inputs:
+      commit_count:
+        description: 'Number of commits to generate in this batch'
+        required: false
+        default: '100'
+        type: string
       task_title:
         description: 'Title for the test task'
         required: false
-        default: 'Automated test task'
+        default: 'Automated batch lifecycle task'
         type: string
 
 permissions:
@@ -33,7 +40,7 @@ jobs:
         id: create_issue
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          TITLE: ${{ inputs.task_title || 'Automated test task' }}
+          TITLE: ${{ inputs.task_title || 'Automated batch lifecycle task' }}
         run: |
           ISSUE_URL=$(gh issue create \
             --title "$TITLE (Run #${{ github.run_number }})" \
@@ -43,23 +50,26 @@ jobs:
           ISSUE_NUM=$(gh issue view "$ISSUE_URL" --json number -q .number)
           echo "issue_number=$ISSUE_NUM" >> "$GITHUB_OUTPUT"
 
-      - name: Step 2 - Create Branch and Commit Changes
+      - name: Step 2 - Create Branch and Batch Commit Changes
         id: create_branch
+        env:
+          COMMIT_COUNT: ${{ inputs.commit_count || 100 }}
         run: |
           ISSUE_NUM="${{ steps.create_issue.outputs.issue_number }}"
           BRANCH_NAME="automation/task-${ISSUE_NUM}-${{ github.run_id }}"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
           git checkout -b "$BRANCH_NAME"
-
-          # Record update in an activity file
           mkdir -p .automation
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | $TIMESTAMP" >> .automation/activity.md
 
-          git add .automation/activity.md
-          # [skip ci] prevents triggering secondary build workflows
-          git commit -m "feat(automation): update activity log for #${ISSUE_NUM} [skip ci]"
+          echo "Generating $COMMIT_COUNT commits in batch..."
+          for i in $(seq 1 "$COMMIT_COUNT"); do
+            TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | Step ${i}/${COMMIT_COUNT} | ${TIMESTAMP}" >> .automation/activity.md
+            git add .automation/activity.md
+            git commit -m "feat(automation): update activity log step ${i}/${COMMIT_COUNT} (#${ISSUE_NUM}) [skip ci]"
+          done
+
           git push origin "$BRANCH_NAME"
 
       - name: Step 3 - Open a Pull Request
@@ -83,7 +93,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           PR_URL="${{ steps.open_pr.outputs.pr_url }}"
-          # Merge and delete the remote branch
+          # Merge using standard merge commit to preserve all batch commits on main
           gh pr merge "$PR_URL" --merge --delete-branch --admin || \
           gh pr merge "$PR_URL" --merge --delete-branch
 
