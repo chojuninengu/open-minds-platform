@@ -28,6 +28,7 @@ jobs:
         uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign: true
 
@@ -60,8 +61,8 @@ jobs:
           echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | $TIMESTAMP" >> .automation/activity.md
 
           git add .automation/activity.md
-          # [skip ci] prevents triggering secondary build workflows
-          git commit -S -m "feat(automation): update activity log for #${ISSUE_NUM} [skip ci]"
+          # [skip ci] prevents triggering secondary build workflows; commit is auto-signed via git_commit_gpgsign
+          git commit -m "feat(automation): update activity log for #${ISSUE_NUM} [skip ci]"
           git push origin "$BRANCH_NAME"
 
       - name: Step 3 - Open a Pull Request
