@@ -22,19 +22,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # If PERSONAL_ACCESS_TOKEN is provided, checkout with it so git push inherits your credentials
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: Configure Git Author as chojuninengu
+      - name: Import GPG Key for Verified Commits
+        if: ${{ secrets.GPG_PRIVATE_KEY != '' }}
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
+      - name: Configure Git Author from Context or Secrets
+        if: ${{ secrets.GPG_PRIVATE_KEY == '' }}
         run: |
-          git config user.name "chojuninengu"
-          git config user.email "chojuninengu@gmail.com"
+          git config user.name "${{ secrets.GIT_USER_NAME || vars.GIT_USER_NAME || github.actor }}"
+          git config user.email "${{ secrets.GIT_USER_EMAIL || vars.GIT_USER_EMAIL || format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}"
 
       - name: Step 1 - Create an Issue (Ticket)
         id: create_issue
         env:
-          # Using PERSONAL_ACCESS_TOKEN makes the issue authored by chojuninengu
-          # Falls back to GITHUB_TOKEN (authored by github-actions[bot]) if not configured
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           TITLE: ${{ inputs.task_title || 'Automated test task' }}
         run: |
@@ -61,7 +67,7 @@ jobs:
           echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | $TIMESTAMP" >> .automation/activity.md
 
           git add .automation/activity.md
-          # Commit authored by chojuninengu; [skip ci] prevents triggering secondary build workflows
+          # [skip ci] prevents triggering secondary build workflows
           git commit -m "feat(automation): update activity log for #${ISSUE_NUM} [skip ci]"
           git push origin "$BRANCH_NAME"
 
