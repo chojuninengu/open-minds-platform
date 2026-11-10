@@ -1,0 +1,102 @@
+name: Educational Lifecycle Test (Issue -> PR -> Merge -> Cleanup)
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_title:
+        description: 'Title for the test task'
+        required: false
+        default: 'Automated test task'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  lifecycle-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # If PERSONAL_ACCESS_TOKEN is provided, checkout with it so git push inherits your credentials
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git Author as chojuninengu
+        run: |
+          git config user.name "chojuninengu"
+          git config user.email "chojuninengu@gmail.com"
+
+      - name: Step 1 - Create an Issue (Ticket)
+        id: create_issue
+        env:
+          # Using PERSONAL_ACCESS_TOKEN makes the issue authored by chojuninengu
+          # Falls back to GITHUB_TOKEN (authored by github-actions[bot]) if not configured
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TITLE: ${{ inputs.task_title || 'Automated test task' }}
+        run: |
+          ISSUE_URL=$(gh issue create \
+            --title "$TITLE (Run #${{ github.run_number }})" \
+            --body "Educational test: automatically created by GitHub Actions run ${{ github.run_id }}." \
+            --label "automated-test")
+          echo "Created Issue: $ISSUE_URL"
+          ISSUE_NUM=$(gh issue view "$ISSUE_URL" --json number -q .number)
+          echo "issue_number=$ISSUE_NUM" >> "$GITHUB_OUTPUT"
+
+      - name: Step 2 - Create Branch and Commit Changes
+        id: create_branch
+        run: |
+          ISSUE_NUM="${{ steps.create_issue.outputs.issue_number }}"
+          BRANCH_NAME="automation/task-${ISSUE_NUM}-${{ github.run_id }}"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+          git checkout -b "$BRANCH_NAME"
+
+          # Record update in an activity file
+          mkdir -p .automation
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "- **Run ${{ github.run_id }}** | Issue #${ISSUE_NUM} | $TIMESTAMP" >> .automation/activity.log
+
+          git add .automation/activity.log
+          # Commit authored by chojuninengu; [skip ci] prevents triggering secondary build workflows
+          git commit -m "feat(automation): update activity log for #${ISSUE_NUM} [skip ci]"
+          git push origin "$BRANCH_NAME"
+
+      - name: Step 3 - Open a Pull Request
+        id: open_pr
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUM="${{ steps.create_issue.outputs.issue_number }}"
+          BRANCH_NAME="${{ steps.create_branch.outputs.branch_name }}"
+
+          PR_URL=$(gh pr create \
+            --title "feat(automation): automated resolution for #${ISSUE_NUM}" \
+            --body "Automated test pull request.\n\nCloses #${ISSUE_NUM}" \
+            --base main \
+            --head "$BRANCH_NAME")
+          echo "Opened PR: $PR_URL"
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Step 4 - Merge Pull Request and Delete Branch
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          PR_URL="${{ steps.open_pr.outputs.pr_url }}"
+          # Merge and delete the remote branch
+          gh pr merge "$PR_URL" --merge --delete-branch --admin || \
+          gh pr merge "$PR_URL" --merge --delete-branch
+
+      - name: Step 5 - Ensure Issue is Closed
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUM="${{ steps.create_issue.outputs.issue_number }}"
+          STATUS=$(gh issue view "$ISSUE_NUM" --json state -q .state)
+          if [ "$STATUS" != "CLOSED" ]; then
+            gh issue close "$ISSUE_NUM" --comment "Closed via automated test workflow run ${{ github.run_id }}."
+          fi
+          echo "Issue #${ISSUE_NUM} is closed."
